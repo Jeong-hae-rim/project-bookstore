@@ -2,26 +2,30 @@ const conn = require("../db/mariadb");
 const { StatusCodes } = require("http-status-codes");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
+const crypto = require("crypto");
 
 dotenv.config();
 
 const userJoin = (req, res) => {
     if (req.body == {}) {
-        res.status(StatusCodes.BAD_REQUEST).json({
+        return res.status(StatusCodes.BAD_REQUEST).json({
             message: "요청하신 값을 다시 확인해 주세요."
         })
     } else {
         const { email, name, password } = req.body;
-        const sql = "INSERT INTO users (email, name, password) VALUES(?, ?, ?)"
-        const sqlArr = [email, name, password];
+        const salt = crypto.randomBytes(10).toString('base64');
+        const hashed = crypto.pbkdf2Sync(password, salt, 10000, 10, 'sha512').toString('base64');
+
+        const sql = "INSERT INTO users (email, name, password, salt) VALUES(?, ?, ?, ?)"
+        const sqlArr = [email, name, hashed, salt];
 
         conn.query(sql, sqlArr, (err, results) => {
             if (err) {
-                res.status(StatusCodes.BAD_REQUEST).json({
+                return res.status(StatusCodes.BAD_REQUEST).json({
                     message: err
                 })
             }
-            res.status(StatusCodes.CREATED).json(results);
+            return res.status(StatusCodes.CREATED).json(results);
         });
     }
 }
@@ -33,14 +37,15 @@ const userLogin = (req, res) => {
 
     conn.query(sql, email, (err, results) => {
         if (err) {
-            res.status(StatusCodes.BAD_REQUEST).json({
+            return res.status(StatusCodes.BAD_REQUEST).json({
                 message: err
             })
         }
 
-        loginUser = results[0];
+        const loginUser = results[0];
+        const pwdHashed = crypto.pbkdf2Sync(password, loginUser.salt, 10000, 10, 'sha512').toString('base64');
 
-        if (loginUser && loginUser.password == password) {
+        if (loginUser && loginUser.password == pwdHashed) {
             const token = jwt.sign({
                 email: loginUser.email
             }, process.env.PRIVATE_KEY, {
@@ -63,11 +68,50 @@ const userLogin = (req, res) => {
 }
 
 const requestPasswordReset = (req, res) => {
-    res.json({ message: "비밀 번호 초기화 요청" })
+    const { email } = req.body;
+    let sql = "SELECT * FROM users WHERE email = ?";
+
+    conn.query(sql, email, (err, results) => {
+        if (err) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: err
+            })
+        }
+
+        const user = results[0];
+
+        if (user) {
+            return res.status(StatusCodes.OK).json({
+                email: email
+            });
+        } else {
+            return res.status(StatusCodes.UNAUTHORIZED).end();
+        }
+    })
 }
 
 const passwordReset = (req, res) => {
-    res.json({ message: "비밀 번호 초기화" })
+    const { email, password } = req.body;
+
+    const salt = crypto.randomBytes(10).toString('base64');
+    const hashed = crypto.pbkdf2Sync(password, salt, 10000, 10, 'sha512').toString('base64');
+
+    let sql = "UPDATE users SET password = ?, salt = ? WHERE email = ?";
+    let values = [hashed, salt, email];
+
+    conn.query(sql, values, (err, results) => {
+        if (err) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: err
+            })
+        }
+
+        if (results.affectedRows === 0) {
+            return res.status(StatusCodes.BAD_REQUEST).end();
+        } else {
+            return res.status(StatusCodes.OK).json(results);
+        }
+    })
 }
 
 module.exports = {
