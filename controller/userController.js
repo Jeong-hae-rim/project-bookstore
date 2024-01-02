@@ -22,4 +22,21 @@ const userJoin = (req, res) => {
     }
 }
 
-module.exports = { userJoin };
+const userLogin = (req, res) => {
+    res.json({ message: "로그인" })
+}
+
+const requestPasswordReset = (req, res) => {
+    res.json({ message: "비밀 번호 초기화 요청" })
+}
+
+const passwordReset = (req, res) => {
+    res.json({ message: "비밀 번호 초기화" })
+}
+
+module.exports = {
+    userJoin,
+    userLogin,
+    requestPasswordReset,
+    passwordReset
+};
