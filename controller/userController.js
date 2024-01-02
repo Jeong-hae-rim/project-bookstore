@@ -7,7 +7,7 @@ dotenv.config();
 
 const userJoin = (req, res) => {
     if (req.body == {}) {
-        res.status(StatusCodes.BAD_REQUEST).json({
+        return res.status(StatusCodes.BAD_REQUEST).json({
             message: "요청하신 값을 다시 확인해 주세요."
         })
     } else {
@@ -17,11 +17,11 @@ const userJoin = (req, res) => {
 
         conn.query(sql, sqlArr, (err, results) => {
             if (err) {
-                res.status(StatusCodes.BAD_REQUEST).json({
+                return res.status(StatusCodes.BAD_REQUEST).json({
                     message: err
                 })
             }
-            res.status(StatusCodes.CREATED).json(results);
+            return res.status(StatusCodes.CREATED).json(results);
         });
     }
 }
@@ -33,7 +33,7 @@ const userLogin = (req, res) => {
 
     conn.query(sql, email, (err, results) => {
         if (err) {
-            res.status(StatusCodes.BAD_REQUEST).json({
+            return res.status(StatusCodes.BAD_REQUEST).json({
                 message: err
             })
         }
@@ -63,11 +63,47 @@ const userLogin = (req, res) => {
 }
 
 const requestPasswordReset = (req, res) => {
-    res.json({ message: "비밀 번호 초기화 요청" })
+    const { email } = req.body;
+    let sql = "SELECT * FROM users WHERE email = ?";
+
+    conn.query(sql, email, (err, results) => {
+        if (err) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: err
+            })
+        }
+
+        const user = results[0];
+
+        if (user) {
+            return res.status(StatusCodes.OK).json({
+                email: email
+            });
+        } else {
+            return res.status(StatusCodes.UNAUTHORIZED).end();
+        }
+    })
 }
 
 const passwordReset = (req, res) => {
-    res.json({ message: "비밀 번호 초기화" })
+    const { email, password } = req.body;
+
+    let sql = "UPDATE users SET password = ? WHERE email = ?";
+    let values = [password, email];
+
+    conn.query(sql, values, (err, results) => {
+        if (err) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: err
+            })
+        }
+
+        if (results.affectedRows === 0) {
+            return res.status(StatusCodes.BAD_REQUEST).end();
+        } else {
+            return res.status(StatusCodes.OK).json(results);
+        }
+    })
 }
 
 module.exports = {
