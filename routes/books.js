@@ -1,17 +1,14 @@
 const express = require("express");
 const {
-    allBooks,
-    detailBook,
-    categoryOfBooks
+    allReadBooks,
+    detailReadBook
 } = require("../controller/BookController");
 const router = express.Router();
 
 router.use(express.json());
 
-router.get("/", allBooks);
+router.get("/", allReadBooks);
 
-router.get("/:id", detailBook);
-
-router.get("/:category_id", categoryOfBooks);
+router.get("/:id", detailReadBook);
 
 module.exports = router;
