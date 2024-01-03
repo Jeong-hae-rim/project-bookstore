@@ -1,10 +1,9 @@
 const express = require("express");
+const allReadCategory = require("../controller/categoryController");
 const router = express.Router();
 
 router.use(express.json());
 
-router.get("/", (req, res) => {
-    res.json({ message: "카테고리 전체 조회" })
-});
+router.get("/", allReadCategory);
 
 module.exports = router;
