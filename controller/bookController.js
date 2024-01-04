@@ -4,13 +4,12 @@ const { StatusCodes } = require("http-status-codes");
 const allReadBooks = (req, res) => {
     const { category_id, recent, limit, currentPage } = req.query;
     let offset = (parseInt(currentPage) - 1) * parseInt(limit);
-    let sql = "SELECT * FROM books";
     let values = [];
+    let sql = "SELECT * FROM books";
 
     if (category_id && recent) {
         sql += " WHERE category_id = ? AND pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()";
         values = [parseInt(category_id)];
-        // recent 값을 boolean으로 변환하여 추가
     } else if (category_id) {
         sql += " WHERE category_id = ?";
         values = [parseInt(category_id)];
@@ -28,9 +27,7 @@ const allReadBooks = (req, res) => {
             })
         }
 
-        const book = results[0];
-
-        if (book) {
+        if (results[0]) {
             return res.status(StatusCodes.OK).json(results);
         } else {
             return res.status(StatusCodes.NOT_FOUND).json({
@@ -55,9 +52,7 @@ const detailReadBook = (req, res) => {
             })
         }
 
-        const book = results[0];
-
-        if (book) {
+        if (results[0]) {
             return res.status(StatusCodes.OK).json(results);
         } else {
             return res.status(StatusCodes.NOT_FOUND).json({

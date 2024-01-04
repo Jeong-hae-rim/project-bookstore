@@ -1,10 +1,8 @@
-const { config } = require("dotenv");
 const express = require("express");
 const dotenv = require("dotenv");
-
-config();
-
 const app = express();
+
+dotenv.config();
 
 app.listen(process.env.PORT, () => {
     console.log(`port ${process.env.PORT} is running...`)
