@@ -11,9 +11,7 @@ const allReadCategory = (req, res) => {
             })
         }
 
-        const categories = results[0];
-
-        if (categories) {
+        if (results[0]) {
             return res.status(StatusCodes.OK).json(results);
         } else {
             return res.status(StatusCodes.NOT_FOUND).end();

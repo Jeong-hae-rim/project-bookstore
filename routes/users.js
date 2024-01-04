@@ -10,11 +10,8 @@ const {
 router.use(express.json());
 
 router.post("/join", userJoin);
-
 router.post("/login", userLogin);
-
 router.post("/reset", requestPasswordReset);
-
 router.put("/reset", passwordReset);
 
 module.exports = router;

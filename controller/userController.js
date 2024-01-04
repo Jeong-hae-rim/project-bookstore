@@ -7,18 +7,17 @@ const crypto = require("crypto");
 dotenv.config();
 
 const userJoin = (req, res) => {
+    const { email, name, password } = req.body;
+    const salt = crypto.randomBytes(10).toString('base64');
+    const hashed = crypto.pbkdf2Sync(password, salt, 10000, 10, 'sha512').toString('base64');
+    const sql = "INSERT INTO users (email, name, password, salt) VALUES(?, ?, ?, ?)"
+    const sqlArr = [email, name, hashed, salt];
+
     if (req.body == {}) {
         return res.status(StatusCodes.BAD_REQUEST).json({
             message: "요청하신 값을 다시 확인해 주세요."
         })
     } else {
-        const { email, name, password } = req.body;
-        const salt = crypto.randomBytes(10).toString('base64');
-        const hashed = crypto.pbkdf2Sync(password, salt, 10000, 10, 'sha512').toString('base64');
-
-        const sql = "INSERT INTO users (email, name, password, salt) VALUES(?, ?, ?, ?)"
-        const sqlArr = [email, name, hashed, salt];
-
         conn.query(sql, sqlArr, (err, results) => {
             if (err) {
                 return res.status(StatusCodes.BAD_REQUEST).json({
@@ -32,7 +31,6 @@ const userJoin = (req, res) => {
 
 const userLogin = (req, res) => {
     const { email, password } = req.body;
-
     let sql = "SELECT * FROM users WHERE email = ?";
 
     conn.query(sql, email, (err, results) => {
@@ -42,12 +40,11 @@ const userLogin = (req, res) => {
             })
         }
 
-        const loginUser = results[0];
-        const pwdHashed = crypto.pbkdf2Sync(password, loginUser.salt, 10000, 10, 'sha512').toString('base64');
+        const pwdHashed = crypto.pbkdf2Sync(password, results[0].salt, 10000, 10, 'sha512').toString('base64');
 
-        if (loginUser && loginUser.password == pwdHashed) {
+        if (results[0] && results[0].password == pwdHashed) {
             const token = jwt.sign({
-                email: loginUser.email
+                email: results[0].email
             }, process.env.PRIVATE_KEY, {
                 expiresIn: '5m',
                 issuer: "jeong"
@@ -78,9 +75,7 @@ const requestPasswordReset = (req, res) => {
             })
         }
 
-        const user = results[0];
-
-        if (user) {
+        if (results[0]) {
             return res.status(StatusCodes.OK).json({
                 email: email
             });
