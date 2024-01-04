@@ -2,19 +2,24 @@ const conn = require("../db/mariadb");
 const { StatusCodes } = require("http-status-codes");
 
 const allReadBooks = (req, res) => {
-    const { category_id, recent } = req.query;
+    const { category_id, recent, limit, currentPage } = req.query;
+    let offset = (parseInt(currentPage) - 1) * parseInt(limit);
     let sql = "SELECT * FROM books";
     let values = [];
+
     if (category_id && recent) {
-        values = [parseInt(category_id), recent];
         sql += " WHERE category_id = ? AND pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()";
-    } else if (category_id) {
         values = [parseInt(category_id)];
+        // recent 값을 boolean으로 변환하여 추가
+    } else if (category_id) {
         sql += " WHERE category_id = ?";
+        values = [parseInt(category_id)];
     } else if (recent) {
-        values = [recent];
         sql += " WHERE pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()";
     }
+
+    sql += " LIMIT ? OFFSET ?";
+    values = [...values, parseInt(limit), parseInt(offset)];
 
     conn.query(sql, values, (err, results) => {
         if (err) {
