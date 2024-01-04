@@ -48,7 +48,9 @@ const allReadBooks = (req, res) => {
 const detailReadBook = (req, res) => {
     const { id } = req.params;
 
-    let sql = "SELECT * FROM books WHERE id = ?";
+    let sql = `SELECT * FROM books 
+            LEFT JOIN categories ON books.category_id = categories.id
+            WHERE books.id = ?`;
 
     conn.query(sql, parseInt(id), (err, results) => {
         if (err) {
