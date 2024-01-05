@@ -5,7 +5,8 @@ const allReadBooks = (req, res) => {
     const { category_id, recent, limit, currentPage } = req.query;
     let offset = (parseInt(currentPage) - 1) * parseInt(limit);
     let values = [];
-    let sql = "SELECT * FROM books";
+    let likeSql = "SELECT count(*) FROM likes WHERE liked_book_id = books.id";
+    let sql = `SELECT *, (${likeSql}) AS likes FROM books`;
 
     if (category_id && recent) {
         sql += " WHERE category_id = ? AND pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()";
@@ -40,12 +41,14 @@ const allReadBooks = (req, res) => {
 
 const detailReadBook = (req, res) => {
     const { id } = req.params;
+    const { user_id } = req.body;
 
-    let sql = `SELECT * FROM books 
-            LEFT JOIN categories ON books.category_id = categories.id
-            WHERE books.id = ?`;
+    let likeSql = "SELECT count(*) FROM likes WHERE liked_book_id = books.id";
+    let isLikeSql = "SELECT EXISTS (SELECT * FROM likes WHERE user_id = ? AND liked_book_id = ?)";
 
-    conn.query(sql, parseInt(id), (err, results) => {
+    let sql = `SELECT *, (${likeSql}) AS likes, (${isLikeSql}) AS isLiked FROM books LEFT JOIN categories ON books.category_id = categories.category_id WHERE books.id = ?`;
+
+    conn.query(sql, [parseInt(user_id), parseInt(id), parseInt(id)], (err, results) => {
         if (err) {
             return res.status(StatusCodes.BAD_REQUEST).json({
                 message: err
