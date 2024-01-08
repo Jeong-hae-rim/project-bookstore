@@ -45,7 +45,23 @@ const addToCarts = (req, res) => {
 }
 
 const removeToCarts = (req, res) => {
-    res.json({ message: "장바구니 도서 삭제" })
+    const { id } = req.params;
+
+    let sql = "DELETE FROM CART_ITEMS_TB WHERE id = ?";
+
+    conn.query(sql, parseInt(id), (err, results) => {
+        if (err) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: err
+            })
+        }
+
+        if (results.affectedRows === 0) {
+            return res.status(StatusCodes.BAD_REQUEST).end();
+        } else {
+            return res.status(StatusCodes.OK).json(results);
+        }
+    })
 }
 
 module.exports = {
