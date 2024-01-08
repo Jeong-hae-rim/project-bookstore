@@ -2,14 +2,18 @@ const conn = require("../db/mariadb");
 const { StatusCodes } = require("http-status-codes");
 
 const allReadCartItems = (req, res) => {
-    const { user_id } = req.body;
+    const { user_id, selected } = req.body;
 
     let allReadSql = `SELECT CART_ITEMS_TB.id, book_id, title, summary, amount, price 
                     FROM CART_ITEMS_TB LEFT JOIN BOOKS_TB 
                     ON CART_ITEMS_TB.book_id = BOOKS_TB.id
-                    WHERE user_id = ?`;
+                    WHERE user_id = ? `;
 
-    conn.query(allReadSql, parseInt(user_id), (err, results) => {
+    if (selected) {
+        allReadSql += "AND CART_ITEMS_TB.book_id IN (?)"
+    }
+
+    conn.query(allReadSql, [parseInt(user_id), selected], (err, results) => {
         if (err) {
             return res.status(StatusCodes.BAD_REQUEST).json({
                 message: err
