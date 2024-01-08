@@ -6,7 +6,23 @@ const allReadCartItems = (req, res) => {
 }
 
 const addToCarts = (req, res) => {
-    res.json({ message: "장바구니 담기" })
+    const { book_id, amount, user_id } = req.body;
+
+    let sql = "INSERT INTO CART_ITEMS_TB (book_id, amount, user_id) VALUES (?, ?, ?)";
+
+    conn.query(sql, [parseInt(book_id), parseInt(amount), parseInt(user_id)], (err, results) => {
+        if (err) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: err
+            })
+        }
+
+        if (results.affectedRows === 0) {
+            return res.status(StatusCodes.BAD_REQUEST).end();
+        } else {
+            return res.status(StatusCodes.OK).json(results);
+        }
+    })
 }
 
 const removeToCarts = (req, res) => {
