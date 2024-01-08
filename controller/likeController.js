@@ -5,7 +5,7 @@ const addLike = (req, res) => {
     const { id } = req.params;
     const { user_id } = req.body;
 
-    let sql = "INSERT INTO likes (user_id, liked_book_id) VALUES (?, ?)";
+    let sql = "INSERT INTO LIKES_TB (user_id, liked_book_id) VALUES (?, ?)";
 
     conn.query(sql, [user_id, parseInt(id)], (err, results) => {
         if (err) {
@@ -26,7 +26,7 @@ const removeLike = (req, res) => {
     const { id } = req.params;
     const { user_id } = req.body;
 
-    let sql = "DELETE FROM likes WHERE user_id = ? AND liked_book_id = ?";
+    let sql = "DELETE FROM LIKES_TB WHERE user_id = ? AND liked_book_id = ?";
 
     conn.query(sql, [user_id, parseInt(id)], (err, results) => {
         if (err) {

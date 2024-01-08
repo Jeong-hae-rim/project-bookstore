@@ -2,7 +2,7 @@ const conn = require("../db/mariadb");
 const { StatusCodes } = require("http-status-codes");
 
 const allReadCategory = (req, res) => {
-    let allReadSql = "SELECT * FROM categories";
+    let allReadSql = "SELECT * FROM CATEGORIES_TB";
 
     conn.query(allReadSql, (err, results) => {
         if (err) {

@@ -10,7 +10,7 @@ const userJoin = (req, res) => {
     const { email, name, password } = req.body;
     const salt = crypto.randomBytes(10).toString('base64');
     const hashed = crypto.pbkdf2Sync(password, salt, 10000, 10, 'sha512').toString('base64');
-    const sql = "INSERT INTO users (email, name, password, salt) VALUES(?, ?, ?, ?)"
+    const sql = "INSERT INTO USERS_TB (email, name, password, salt) VALUES(?, ?, ?, ?)"
     const sqlArr = [email, name, hashed, salt];
 
     if (req.body == {}) {
@@ -31,7 +31,7 @@ const userJoin = (req, res) => {
 
 const userLogin = (req, res) => {
     const { email, password } = req.body;
-    let sql = "SELECT * FROM users WHERE email = ?";
+    let sql = "SELECT * FROM USERS_TB WHERE email = ?";
 
     conn.query(sql, email, (err, results) => {
         if (err) {
@@ -66,7 +66,7 @@ const userLogin = (req, res) => {
 
 const requestPasswordReset = (req, res) => {
     const { email } = req.body;
-    let sql = "SELECT * FROM users WHERE email = ?";
+    let sql = "SELECT * FROM USERS_TB WHERE email = ?";
 
     conn.query(sql, email, (err, results) => {
         if (err) {
@@ -91,7 +91,7 @@ const passwordReset = (req, res) => {
     const salt = crypto.randomBytes(10).toString('base64');
     const hashed = crypto.pbkdf2Sync(password, salt, 10000, 10, 'sha512').toString('base64');
 
-    let sql = "UPDATE users SET password = ?, salt = ? WHERE email = ?";
+    let sql = "UPDATE USERS_TB SET password = ?, salt = ? WHERE email = ?";
     let values = [hashed, salt, email];
 
     conn.query(sql, values, (err, results) => {
