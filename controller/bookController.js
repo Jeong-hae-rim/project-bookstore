@@ -5,8 +5,8 @@ const allReadBooks = (req, res) => {
     const { category_id, recent, limit, currentPage } = req.query;
     let offset = (parseInt(currentPage) - 1) * parseInt(limit);
     let values = [];
-    let likeSql = "SELECT count(*) FROM likes WHERE liked_book_id = books.id";
-    let sql = `SELECT *, (${likeSql}) AS likes FROM books`;
+    let likeSql = "SELECT count(*) FROM LIKES_TB WHERE liked_book_id = BOOKS_TB.id";
+    let sql = `SELECT *, (${likeSql}) AS likes FROM BOOKS_TB`;
 
     if (category_id && recent) {
         sql += " WHERE category_id = ? AND pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()";
@@ -43,10 +43,10 @@ const detailReadBook = (req, res) => {
     const { id } = req.params;
     const { user_id } = req.body;
 
-    let likeSql = "SELECT count(*) FROM likes WHERE liked_book_id = books.id";
-    let isLikeSql = "SELECT EXISTS (SELECT * FROM likes WHERE user_id = ? AND liked_book_id = ?)";
+    let likeSql = "SELECT count(*) FROM LIKES_TB WHERE liked_book_id = BOOKS_TB.id";
+    let isLikeSql = "SELECT EXISTS (SELECT * FROM LIKES_TB WHERE user_id = ? AND liked_book_id = ?)";
 
-    let sql = `SELECT *, (${likeSql}) AS likes, (${isLikeSql}) AS isLiked FROM books LEFT JOIN categories ON books.category_id = categories.category_id WHERE books.id = ?`;
+    let sql = `SELECT *, (${likeSql}) AS likes, (${isLikeSql}) AS isLiked FROM BOOKS_TB LEFT JOIN CATEGORIES_TB ON BOOKS_TB.category_id = CATEGORIES_TB.category_id WHERE BOOKS_TB.id = ?`;
 
     conn.query(sql, [parseInt(user_id), parseInt(id), parseInt(id)], (err, results) => {
         if (err) {
