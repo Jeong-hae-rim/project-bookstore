@@ -9,6 +9,10 @@ const readAllOrder = (req, res) => {
 const addToOrder = async (req, res) => {
     const { items, delivery, total_amount, total_price, user_id, first_book_title } = req.body;
 
+    // CART_ITEMS_TB SELECT id 조건절
+    let cartItemSql = "SELECT book_id, amount FROM CART_ITEMS_TB WHERE id IN (?)";
+    let [cartItemsResults, fields] = await conn.query(cartItemSql, [items]);
+
     // DELIVERY_TB INSERT (DELIVERY_TB id 있어야 함)
     let deliverySql = "INSERT INTO DELIVERY_TB (address, receiver, contact) VALUES (?, ?, ?)";
     let deliveryValues = [delivery.address, delivery.receiver, delivery.contact];
@@ -22,20 +26,41 @@ const addToOrder = async (req, res) => {
     let orderedBooksValues = [];
 
     // 쿼리 실행
-    const [deliveryResults, fields] = await conn.query(deliverySql, deliveryValues);
-    const [orderResults, fields2] = await conn.query(ordersSql, [...ordersValues, deliveryResults.insertId]);
+    try {
+        const [deliveryResults, fields2] = await conn.query(deliverySql, deliveryValues);
+        await errorInsertSQL(deliveryResults.affectedRows, conn, res);
 
-    items.forEach((item) => {
-        orderedBooksValues.push([orderResults.insertId, item.book_id, item.amount]);
-    });
+        const [orderResults, fields3] = await conn.query(ordersSql, [...ordersValues, deliveryResults.insertId]);
+        await errorInsertSQL(orderResults.affectedRows, conn, res);
 
-    const [orderedBooksResult, fields3] = await conn.query(orderedBooksSql, [orderedBooksValues]);
+        cartItemsResults.forEach((item) => {
+            orderedBooksValues.push([orderResults.insertId, item.book_id, item.amount]);
+        });
 
-    if (orderedBooksResults.affectedRows === 0) {
-        return res.status(StatusCodes.BAD_REQUEST).end();
-    } else {
-        res.status(StatusCodes.OK).json({ deliveryResults, orderResults, orderedBooksResult });
+        const [orderedBooksResult, fields4] = await conn.query(orderedBooksSql, [orderedBooksValues]);
+        await errorInsertSQL(orderedBooksResult.affectedRows, conn, res);
+
+        const [cartRemoveResults, fields5] = await removeToCartItem(items);
+        await errorInsertSQL(cartRemoveResults.affectedRows, conn, res);
+
+        res.status(StatusCodes.OK).json({ deliveryResults, orderResults, orderedBooksResult, cartRemoveResults });
+    } catch (error) {
+        console.error("Transaction failed:", error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
     }
+}
+
+const errorInsertSQL = async (affectedRows, conn, res) => {
+    if (affectedRows === 0) {
+        await conn.rollback();
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+    }
+}
+
+const removeToCartItem = async (items) => {
+    let sql = "DELETE FROM CART_ITEMS_TB WHERE id IN (?)";
+
+    return [results, fields] = await conn.query(sql, [items]);
 }
 
 const readDetailOrder = (req, res) => {
