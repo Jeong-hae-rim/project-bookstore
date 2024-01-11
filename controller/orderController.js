@@ -2,8 +2,18 @@ const conn = require("../db/mariadb");
 const { StatusCodes } = require("http-status-codes");
 
 
-const readAllOrder = (req, res) => {
-    res.json({ message: "결제 상품 전체 조회" })
+const readAllOrder = async (req, res) => {
+    let sql = `SELECT 
+    ORDERS_TB.id, created_at, receiver, contact, address, book_title, total_amount, total_price 
+    FROM ORDERS_TB LEFT JOIN DELIVERY_TB ON ORDERS_TB.delivery_id = DELIVERY_TB.id`;
+
+    let [results, fields] = await conn.query(sql);
+
+    if (results) {
+        res.status(StatusCodes.OK).json(results);
+    } else {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+    }
 }
 
 const addToOrder = async (req, res) => {
