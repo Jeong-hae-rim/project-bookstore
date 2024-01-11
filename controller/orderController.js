@@ -6,7 +6,7 @@ const readAllOrder = (req, res) => {
     res.json({ message: "결제 상품 전체 조회" })
 }
 
-const addToOrder = (req, res) => {
+const addToOrder = async (req, res) => {
     const { items, delivery, total_amount, total_price, user_id, first_book_title } = req.body;
 
     // DELIVERY_TB INSERT (DELIVERY_TB id 있어야 함)
@@ -22,47 +22,20 @@ const addToOrder = (req, res) => {
     let orderedBooksValues = [];
 
     // 쿼리 실행
-    conn.query(deliverySql, deliveryValues, (err, deliveryResults) => {
-        if (err) {
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                message: err
-            });
-        }
+    const [deliveryResults, fields] = await conn.query(deliverySql, deliveryValues);
+    const [orderResults, fields2] = await conn.query(ordersSql, [...ordersValues, deliveryResults.insertId]);
 
-        // 결과에서 delivery_id를 가져올 수 있으면 가져오기
-        const delivery_id = deliveryResults.insertId;
-
-        // ORDERS_TB 쿼리 계속 진행
-        conn.query(ordersSql, [...ordersValues, delivery_id], (err, ordersResults) => {
-            if (err) {
-                return res.status(StatusCodes.BAD_REQUEST).json({
-                    message: err
-                });
-            }
-
-            // 결과에서 order_id를 가져올 수 있으면 가져오기
-            const order_id = ordersResults.insertId;
-
-            // ORDERED_BOOKS_TB 쿼리 계속 진행
-            items.forEach((item) => {
-                orderedBooksValues.push([order_id, item.book_id, item.amount]);
-            });
-
-            conn.query(orderedBooksSql, [orderedBooksValues], (err, orderedBooksResults) => {
-                if (err) {
-                    return res.status(StatusCodes.BAD_REQUEST).json({
-                        message: err
-                    });
-                }
-
-                if (orderedBooksResults.affectedRows === 0) {
-                    return res.status(StatusCodes.BAD_REQUEST).end();
-                } else {
-                    return res.status(StatusCodes.OK).json(orderedBooksResults);
-                }
-            });
-        });
+    items.forEach((item) => {
+        orderedBooksValues.push([orderResults.insertId, item.book_id, item.amount]);
     });
+
+    const [orderedBooksResult, fields3] = await conn.query(orderedBooksSql, [orderedBooksValues]);
+
+    if (orderedBooksResults.affectedRows === 0) {
+        return res.status(StatusCodes.BAD_REQUEST).end();
+    } else {
+        res.status(StatusCodes.OK).json({ deliveryResults, orderResults, orderedBooksResult });
+    }
 }
 
 const readDetailOrder = (req, res) => {
