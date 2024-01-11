@@ -73,8 +73,21 @@ const removeToCartItem = async (items) => {
     return [results, fields] = await conn.query(sql, [items]);
 }
 
-const readDetailOrder = (req, res) => {
-    res.json({ message: "결제 상품 상세 조회" })
+const readDetailOrder = async (req, res) => {
+    const { id } = req.params;
+
+    let sql = `SELECT 
+    book_id, title, author, price, amount 
+    FROM ORDERED_BOOKS_TB LEFT JOIN BOOKS_TB ON ORDERED_BOOKS_TB.book_id = BOOKS_TB.id 
+    WHERE order_id = ?`;
+
+    let [results, fields] = await conn.query(sql, parseInt(id));
+
+    if (results) {
+        res.status(StatusCodes.OK).json(results);
+    } else {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+    }
 }
 
 module.exports = {
