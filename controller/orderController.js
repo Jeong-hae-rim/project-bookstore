@@ -7,11 +7,16 @@ const readAllOrder = async (req, res) => {
     ORDERS_TB.id, created_at, receiver, contact, address, book_title, total_amount, total_price 
     FROM ORDERS_TB LEFT JOIN DELIVERY_TB ON ORDERS_TB.delivery_id = DELIVERY_TB.id`;
 
-    let [results, fields] = await conn.query(sql);
+    try {
+        let [results, fields] = await conn.query(sql);
 
-    if (results) {
-        res.status(StatusCodes.OK).json(results);
-    } else {
+        if (results) {
+            res.status(StatusCodes.OK).json(results);
+        } else {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+        }
+    } catch (error) {
+        console.error("Error reading orders:", error);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
     }
 }
@@ -81,11 +86,16 @@ const readDetailOrder = async (req, res) => {
     FROM ORDERED_BOOKS_TB LEFT JOIN BOOKS_TB ON ORDERED_BOOKS_TB.book_id = BOOKS_TB.id 
     WHERE order_id = ?`;
 
-    let [results, fields] = await conn.query(sql, parseInt(id));
+    try {
+        let [results, fields] = await conn.query(sql, parseInt(id));
 
-    if (results) {
-        res.status(StatusCodes.OK).json(results);
-    } else {
+        if (results) {
+            res.status(StatusCodes.OK).json(results);
+        } else {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+        }
+    } catch (error) {
+        console.error("Error reading orders detail:", error);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
     }
 }
