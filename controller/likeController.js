@@ -1,13 +1,18 @@
 const conn = require("../db/mariadb");
 const { StatusCodes } = require("http-status-codes");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
+
+dotenv.config();
 
 const addLike = async (req, res) => {
     const { id } = req.params;
-    const { user_id } = req.body;
+    const receivedJwt = req.headers["authorization"];
+    let decodedUserInfo = jwt.decode(receivedJwt, process.env.PRIVATE_KEY);
 
     let sql = "INSERT INTO LIKES_TB (user_id, liked_book_id) VALUES (?, ?)";
 
-    let [results, fields] = await conn.query(sql, [user_id, parseInt(id)]);
+    let [results, fields] = await conn.query(sql, [decodedUserInfo.id, parseInt(id)]);
 
     if (results.affectedRows === 0) {
         return res.status(StatusCodes.BAD_REQUEST).end();
