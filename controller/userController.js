@@ -35,6 +35,7 @@ const userLogin = async (req, res) => {
 
     if (results[0] && results[0].password == pwdHashed) {
         const token = jwt.sign({
+            id: results[0].id,
             email: results[0].email
         }, process.env.PRIVATE_KEY, {
             expiresIn: '5m',
