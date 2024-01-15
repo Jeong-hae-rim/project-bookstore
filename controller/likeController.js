@@ -4,7 +4,7 @@ const { decodedJWT } = require("../helper");
 
 const addLike = async (req, res) => {
     const { id } = req.params;
-    let decoded = decodedJWT(req.headers["authorization"]);
+    const decoded = decodedJWT(req, res);
 
     let sql = "INSERT INTO LIKES_TB (user_id, liked_book_id) VALUES (?, ?)";
 
@@ -19,7 +19,7 @@ const addLike = async (req, res) => {
 
 const removeLike = async (req, res) => {
     const { id } = req.params;
-    let decoded = decodedJWT(req.headers["authorization"]);
+    const decoded = decodedJWT(req, res);
 
     let sql = "DELETE FROM LIKES_TB WHERE user_id = ? AND liked_book_id = ?";
 
