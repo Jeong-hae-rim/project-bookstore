@@ -6,7 +6,7 @@ const crypto = require("crypto");
 
 dotenv.config();
 
-const userJoin = (req, res) => {
+const userJoin = async (req, res) => {
     const { email, name, password } = req.body;
     const salt = crypto.randomBytes(10).toString('base64');
     const hashed = crypto.pbkdf2Sync(password, salt, 10000, 10, 'sha512').toString('base64');
@@ -18,74 +18,58 @@ const userJoin = (req, res) => {
             message: "요청하신 값을 다시 확인해 주세요."
         })
     } else {
-        conn.query(sql, sqlArr, (err, results) => {
-            if (err) {
-                return res.status(StatusCodes.BAD_REQUEST).json({
-                    message: err
-                })
-            }
-            return res.status(StatusCodes.CREATED).json(results);
-        });
+
+        let [results, fields] = await conn.query(sql, sqlArr);
+
+        return res.status(StatusCodes.CREATED).json(results);
     }
 }
 
-const userLogin = (req, res) => {
+const userLogin = async (req, res) => {
     const { email, password } = req.body;
     let sql = "SELECT * FROM USERS_TB WHERE email = ?";
 
-    conn.query(sql, email, (err, results) => {
-        if (err) {
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                message: err
-            })
-        }
+    let [results, fields] = await conn.query(sql, email);
 
-        const pwdHashed = crypto.pbkdf2Sync(password, results[0].salt, 10000, 10, 'sha512').toString('base64');
+    const pwdHashed = crypto.pbkdf2Sync(password, results[0].salt, 10000, 10, 'sha512').toString('base64');
 
-        if (results[0] && results[0].password == pwdHashed) {
-            const token = jwt.sign({
-                email: results[0].email
-            }, process.env.PRIVATE_KEY, {
-                expiresIn: '5m',
-                issuer: "jeong"
-            })
+    if (results[0] && results[0].password == pwdHashed) {
+        const token = jwt.sign({
+            email: results[0].email
+        }, process.env.PRIVATE_KEY, {
+            expiresIn: '5m',
+            issuer: "jeong"
+        })
 
-            res.cookie("token", token, {
-                httpOnly: true
-            })
-            console.log(token);
+        res.cookie("token", token, {
+            httpOnly: true
+        })
+        console.log(token);
 
-            return res.status(StatusCodes.OK).json(results);
-        } else {
-            //403: FORBIDDEN (접근 권리 없음)
-            //401: UNAUTHORIZED (비인증 상태)
-            return res.status(StatusCodes.UNAUTHORIZED).end();
-        }
-    });
+        return res.status(StatusCodes.OK).json(results);
+    } else {
+        //403: FORBIDDEN (접근 권리 없음)
+        //401: UNAUTHORIZED (비인증 상태)
+        return res.status(StatusCodes.UNAUTHORIZED).end();
+    }
 }
 
-const requestPasswordReset = (req, res) => {
+const requestPasswordReset = async (req, res) => {
     const { email } = req.body;
     let sql = "SELECT * FROM USERS_TB WHERE email = ?";
 
-    conn.query(sql, email, (err, results) => {
-        if (err) {
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                message: err
-            })
-        }
+    let [results, fields] = await conn.query(sql, email);
 
-        if (results[0]) {
-            return res.status(StatusCodes.OK).json({
-                email: email
-            });
-        } else {
-            return res.status(StatusCodes.UNAUTHORIZED).end();
-        }
-    })
+    if (results[0]) {
+        return res.status(StatusCodes.OK).json({
+            email: email
+        });
+    } else {
+        return res.status(StatusCodes.UNAUTHORIZED).end();
+    }
 }
 
-const passwordReset = (req, res) => {
+const passwordReset = async (req, res) => {
     const { email, password } = req.body;
 
     const salt = crypto.randomBytes(10).toString('base64');
@@ -94,19 +78,13 @@ const passwordReset = (req, res) => {
     let sql = "UPDATE USERS_TB SET password = ?, salt = ? WHERE email = ?";
     let values = [hashed, salt, email];
 
-    conn.query(sql, values, (err, results) => {
-        if (err) {
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                message: err
-            })
-        }
+    let [results, fields] = await conn.query(sql, values);
 
-        if (results.affectedRows === 0) {
-            return res.status(StatusCodes.BAD_REQUEST).end();
-        } else {
-            return res.status(StatusCodes.OK).json(results);
-        }
-    })
+    if (results.affectedRows === 0) {
+        return res.status(StatusCodes.BAD_REQUEST).end();
+    } else {
+        return res.status(StatusCodes.OK).json(results);
+    }
 }
 
 module.exports = {
