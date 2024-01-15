@@ -1,10 +1,17 @@
 const conn = require("../db/mariadb");
 const { StatusCodes } = require("http-status-codes");
 const { decodedJWT } = require("../helper");
+const { TokenExpiredError } = require("jsonwebtoken");
 
 const allReadCartItems = async (req, res) => {
     const { selected } = req.body;
-    const decoded = decodedJWT(req, res);
+    const decoded = decodedJWT(req);
+
+    if (decoded instanceof TokenExpiredError) {
+        return res.status(StatusCodes.UNAUTHORIZED).json({
+            "message": "로그인 세션이 만료되었습니다. 다시 로그인해 주세요."
+        })
+    }
 
     let sql = `SELECT CART_ITEMS_TB.id, book_id, title, summary, amount, price 
                     FROM CART_ITEMS_TB LEFT JOIN BOOKS_TB 
@@ -14,8 +21,6 @@ const allReadCartItems = async (req, res) => {
     if (selected) {
         sql += "AND CART_ITEMS_TB.id IN (?)"
     }
-
-    console.log(decoded);
 
     let [results, fields] = await conn.query(sql, [decoded.id, selected]);
 
@@ -28,7 +33,13 @@ const allReadCartItems = async (req, res) => {
 
 const addToCarts = async (req, res) => {
     const { book_id, amount } = req.body;
-    const decoded = decodedJWT(req, res);
+    const decoded = decodedJWT(req);
+
+    if (decoded instanceof TokenExpiredError) {
+        return res.status(StatusCodes.UNAUTHORIZED).json({
+            "message": "로그인 세션이 만료되었습니다. 다시 로그인해 주세요."
+        })
+    }
 
     let sql = "INSERT INTO CART_ITEMS_TB (book_id, amount, user_id) VALUES (?, ?, ?)";
 
