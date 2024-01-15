@@ -1,7 +1,7 @@
 const conn = require("../db/mariadb");
 const { StatusCodes } = require("http-status-codes");
 
-const allReadBooks = (req, res) => {
+const allReadBooks = async (req, res) => {
     const { category_id, recent, limit, currentPage } = req.query;
     let offset = (parseInt(currentPage) - 1) * parseInt(limit);
     let values = [];
@@ -21,25 +21,18 @@ const allReadBooks = (req, res) => {
     sql += " LIMIT ? OFFSET ?";
     values = [...values, parseInt(limit), parseInt(offset)];
 
-    conn.query(sql, values, (err, results) => {
-        if (err) {
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                message: err
-            })
-        }
+    let [results, fields] = await conn.query(sql, values);
 
-        if (results[0]) {
-            return res.status(StatusCodes.OK).json(results);
-        } else {
-            return res.status(StatusCodes.NOT_FOUND).json({
-                massage: "존재하지 않는 도서입니다."
-            });
-        }
-    })
-
+    if (results[0]) {
+        return res.status(StatusCodes.OK).json(results);
+    } else {
+        return res.status(StatusCodes.NOT_FOUND).json({
+            massage: "존재하지 않는 도서입니다."
+        });
+    }
 }
 
-const detailReadBook = (req, res) => {
+const detailReadBook = async (req, res) => {
     const { id } = req.params;
     const { user_id } = req.body;
 
@@ -48,21 +41,15 @@ const detailReadBook = (req, res) => {
 
     let sql = `SELECT *, (${likeSql}) AS likes, (${isLikeSql}) AS isLiked FROM BOOKS_TB LEFT JOIN CATEGORIES_TB ON BOOKS_TB.category_id = CATEGORIES_TB.category_id WHERE BOOKS_TB.id = ?`;
 
-    conn.query(sql, [parseInt(user_id), parseInt(id), parseInt(id)], (err, results) => {
-        if (err) {
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                message: err
-            })
-        }
+    let [results, fields] = await conn.query(sql, [parseInt(user_id), parseInt(id), parseInt(id)]);
 
-        if (results[0]) {
-            return res.status(StatusCodes.OK).json(results);
-        } else {
-            return res.status(StatusCodes.NOT_FOUND).json({
-                massage: "존재하지 않는 도서입니다."
-            });
-        }
-    })
+    if (results[0]) {
+        return res.status(StatusCodes.OK).json(results);
+    } else {
+        return res.status(StatusCodes.NOT_FOUND).json({
+            massage: "존재하지 않는 도서입니다."
+        });
+    }
 }
 
 module.exports = {
