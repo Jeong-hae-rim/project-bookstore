@@ -13,6 +13,11 @@ const addLike = async (req, res) => {
         })
     }
 
+    if (decoded instanceof JsonWebTokenError) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+            "message": "잘못된 토큰입니다."
+        })
+    }
 
     let sql = "INSERT INTO LIKES_TB (user_id, liked_book_id) VALUES (?, ?)";
 
@@ -32,6 +37,12 @@ const removeLike = async (req, res) => {
     if (decoded instanceof TokenExpiredError) {
         return res.status(StatusCodes.UNAUTHORIZED).json({
             "message": "로그인 세션이 만료되었습니다. 다시 로그인해 주세요."
+        })
+    }
+
+    if (decoded instanceof JsonWebTokenError) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+            "message": "잘못된 토큰입니다."
         })
     }
 
