@@ -1,18 +1,14 @@
 const conn = require("../db/mariadb");
 const { StatusCodes } = require("http-status-codes");
-const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
-
-dotenv.config();
+const { decodedJWT } = require("../helper");
 
 const addLike = async (req, res) => {
     const { id } = req.params;
-    const receivedJwt = req.headers["authorization"];
-    let decodedUserInfo = jwt.decode(receivedJwt, process.env.PRIVATE_KEY);
+    let decoded = decodedJWT(req.headers["authorization"]);
 
     let sql = "INSERT INTO LIKES_TB (user_id, liked_book_id) VALUES (?, ?)";
 
-    let [results, fields] = await conn.query(sql, [decodedUserInfo.id, parseInt(id)]);
+    let [results, fields] = await conn.query(sql, [decoded.id, parseInt(id)]);
 
     if (results.affectedRows === 0) {
         return res.status(StatusCodes.BAD_REQUEST).end();
@@ -23,11 +19,11 @@ const addLike = async (req, res) => {
 
 const removeLike = async (req, res) => {
     const { id } = req.params;
-    const { user_id } = req.body;
+    let decoded = decodedJWT(req.headers["authorization"]);
 
     let sql = "DELETE FROM LIKES_TB WHERE user_id = ? AND liked_book_id = ?";
 
-    let [results, fields] = await conn.query(sql, [user_id, parseInt(id)]);
+    let [results, fields] = await conn.query(sql, [decoded.id, parseInt(id)]);
 
     if (results.affectedRows === 0) {
         return res.status(StatusCodes.BAD_REQUEST).end();
