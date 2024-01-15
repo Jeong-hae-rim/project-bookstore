@@ -1,23 +1,10 @@
 const conn = require("../db/mariadb");
 const { StatusCodes } = require("http-status-codes");
 const { decodedJWT } = require("../helper");
-const { TokenExpiredError } = require("jsonwebtoken");
 
 const addLike = async (req, res) => {
     const { id } = req.params;
-    const decoded = decodedJWT(req);
-
-    if (decoded instanceof TokenExpiredError) {
-        return res.status(StatusCodes.UNAUTHORIZED).json({
-            "message": "로그인 세션이 만료되었습니다. 다시 로그인해 주세요."
-        })
-    }
-
-    if (decoded instanceof JsonWebTokenError) {
-        return res.status(StatusCodes.BAD_REQUEST).json({
-            "message": "잘못된 토큰입니다."
-        })
-    }
+    const decoded = decodedJWT(req, res);
 
     let sql = "INSERT INTO LIKES_TB (user_id, liked_book_id) VALUES (?, ?)";
 
@@ -32,19 +19,7 @@ const addLike = async (req, res) => {
 
 const removeLike = async (req, res) => {
     const { id } = req.params;
-    const decoded = decodedJWT(req);
-
-    if (decoded instanceof TokenExpiredError) {
-        return res.status(StatusCodes.UNAUTHORIZED).json({
-            "message": "로그인 세션이 만료되었습니다. 다시 로그인해 주세요."
-        })
-    }
-
-    if (decoded instanceof JsonWebTokenError) {
-        return res.status(StatusCodes.BAD_REQUEST).json({
-            "message": "잘못된 토큰입니다."
-        })
-    }
+    const decoded = decodedJWT(req, res);
 
     let sql = "DELETE FROM LIKES_TB WHERE user_id = ? AND liked_book_id = ?";
 
