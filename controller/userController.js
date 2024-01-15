@@ -38,14 +38,13 @@ const userLogin = async (req, res) => {
             id: results[0].id,
             email: results[0].email
         }, process.env.PRIVATE_KEY, {
-            expiresIn: '5m',
+            expiresIn: '1m',
             issuer: "jeong"
         })
 
         res.cookie("token", token, {
             httpOnly: true
         })
-        console.log(token);
 
         return res.status(StatusCodes.OK).json(results);
     } else {
