@@ -1,7 +1,6 @@
 const conn = require("../db");
 const { StatusCodes } = require("http-status-codes");
-const { decodedJWT } = require("../helper");
-
+const { decodedJWT, errorInsertSQL } = require("../helper");
 
 const readAllOrder = async (req, res) => {
     const authorization = decodedJWT(req, res);
@@ -46,23 +45,23 @@ const addToOrder = async (req, res) => {
     try {
 
         const [cartItemsResults, fields] = await conn.query(cartItemSql, [items]);
-        await errorInsertSQL(cartItemsResults, 'cartItemSql', conn, res);
+        await errorInsertSQL(cartItemsResults, 'cartItemSql', res);
 
         const [deliveryResults, fields2] = await conn.query(deliverySql, deliveryValues);
-        await errorInsertSQL(deliveryResults.affectedRows, 'deliverySql', conn, res);
+        await errorInsertSQL(deliveryResults.affectedRows, 'deliverySql', res);
 
         const [orderResults, fields3] = await conn.query(ordersSql, [...ordersValues, deliveryResults.insertId]);
-        await errorInsertSQL(orderResults.affectedRows, 'ordersSql', conn, res);
+        await errorInsertSQL(orderResults.affectedRows, 'ordersSql', res);
 
         cartItemsResults.forEach((item) => {
             orderedBooksValues.push([orderResults.insertId, item.book_id, item.amount]);
         });
 
         const [orderedBooksResult, fields4] = await conn.query(orderedBooksSql, [orderedBooksValues]);
-        await errorInsertSQL(orderedBooksResult.affectedRows, 'orderedBooksSql', conn, res);
+        await errorInsertSQL(orderedBooksResult.affectedRows, 'orderedBooksSql', res);
 
         const [cartRemoveResults, fields5] = await removeToCartItem(items);
-        await errorInsertSQL(cartRemoveResults.affectedRows, 'cartRemoveSql', conn, res);
+        await errorInsertSQL(cartRemoveResults.affectedRows, 'cartRemoveSql', res);
 
         return res.status(StatusCodes.OK).json({
             deliveryResults,
@@ -72,14 +71,6 @@ const addToOrder = async (req, res) => {
         });
     } catch (error) {
         console.error("Transaction failed:", error);
-
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
-    }
-}
-
-const errorInsertSQL = async (results, queryName, conn, res) => {
-    if (results === 0 || !results) {
-        console.error(`Error in ${queryName} query`);
 
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
     }

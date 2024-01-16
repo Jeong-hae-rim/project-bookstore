@@ -28,4 +28,12 @@ const decodedJWT = (req, res) => {
     }
 }
 
-module.exports = { decodedJWT };
+const errorInsertSQL = async (results, queryName, res) => {
+    if (results === 0 || !results) {
+        console.error(`Error in ${queryName} query`);
+
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+    }
+}
+
+module.exports = { decodedJWT, errorInsertSQL };
