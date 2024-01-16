@@ -1,4 +1,4 @@
-const conn = require("../db/mariadb");
+const conn = require("../db");
 const { StatusCodes } = require("http-status-codes");
 const { decodedJWT } = require("../helper");
 
