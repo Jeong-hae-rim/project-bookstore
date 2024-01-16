@@ -1,4 +1,4 @@
-const conn = require("../db/mariadb");
+const conn = require("../db");
 const { StatusCodes } = require("http-status-codes");
 const { decodedJWT } = require("../helper");
 
@@ -11,7 +11,7 @@ const allReadCartItems = async (req, res) => {
                     ON CART_ITEMS_TB.book_id = BOOKS_TB.id
                     WHERE user_id = ? `;
 
-    if (selected) {
+    if (selected.length > 0) {
         sql += "AND CART_ITEMS_TB.id IN (?)"
     }
 
