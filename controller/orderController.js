@@ -25,7 +25,7 @@ const readAllOrder = async (req, res) => {
 
 const addToOrder = async (req, res) => {
     const { items, delivery, total_amount, total_price, first_book_title } = req.body;
-    const authorization = decodedJWT(req);
+    const authorization = decodedJWT(req, res);
 
     // CART_ITEMS_TB SELECT id 조건절
     let cartItemSql = "SELECT book_id, amount FROM CART_ITEMS_TB WHERE id IN (?)";
@@ -64,8 +64,6 @@ const addToOrder = async (req, res) => {
         const [cartRemoveResults, fields5] = await removeToCartItem(items);
         await errorInsertSQL(cartRemoveResults.affectedRows, 'cartRemoveSql', conn, res);
 
-        await conn.commit();
-
         return res.status(StatusCodes.OK).json({
             deliveryResults,
             orderResults,
@@ -73,7 +71,6 @@ const addToOrder = async (req, res) => {
             cartRemoveResults
         });
     } catch (error) {
-        await conn.rollback();
         console.error("Transaction failed:", error);
 
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
@@ -82,7 +79,6 @@ const addToOrder = async (req, res) => {
 
 const errorInsertSQL = async (results, queryName, conn, res) => {
     if (results === 0 || !results) {
-        await conn.rollback();
         console.error(`Error in ${queryName} query`);
 
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
@@ -90,6 +86,8 @@ const errorInsertSQL = async (results, queryName, conn, res) => {
 }
 
 const removeToCartItem = async (items) => {
+    decodedJWT(req, res);
+
     let sql = "DELETE FROM CART_ITEMS_TB WHERE id IN (?)";
     try {
         return await conn.query(sql, [items]);
@@ -100,6 +98,7 @@ const removeToCartItem = async (items) => {
 }
 
 const readDetailOrder = async (req, res) => {
+    decodedJWT(req, res);
     const { id } = req.params;
 
     let sql = `SELECT 
