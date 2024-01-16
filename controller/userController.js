@@ -38,7 +38,7 @@ const userLogin = async (req, res) => {
             id: results[0].id,
             email: results[0].email
         }, process.env.PRIVATE_KEY, {
-            expiresIn: '1m',
+            expiresIn: '1d',
             issuer: "jeong"
         })
 
