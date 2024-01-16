@@ -1,14 +1,17 @@
 const conn = require("../db");
 const { StatusCodes } = require("http-status-codes");
+const { decodedJWT } = require("../helper");
 
 
 const readAllOrder = async (req, res) => {
+    const authorization = decodedJWT(req, res);
+
     let sql = `SELECT 
     ORDERS_TB.id, created_at, receiver, contact, address, book_title, total_amount, total_price 
-    FROM ORDERS_TB LEFT JOIN DELIVERY_TB ON ORDERS_TB.delivery_id = DELIVERY_TB.id`;
+    FROM ORDERS_TB LEFT JOIN DELIVERY_TB ON ORDERS_TB.delivery_id = DELIVERY_TB.id WHERE user_id = ?`;
 
     try {
-        let [results, fields] = await conn.query(sql);
+        let [results, fields] = await conn.query(sql, [authorization.id]);
 
         return (results !== undefined && results !== null && results.length > 0) ?
             res.status(StatusCodes.OK).json(results) :
@@ -21,7 +24,8 @@ const readAllOrder = async (req, res) => {
 }
 
 const addToOrder = async (req, res) => {
-    const { items, delivery, total_amount, total_price, user_id, first_book_title } = req.body;
+    const { items, delivery, total_amount, total_price, first_book_title } = req.body;
+    const authorization = decodedJWT(req);
 
     // CART_ITEMS_TB SELECT id 조건절
     let cartItemSql = "SELECT book_id, amount FROM CART_ITEMS_TB WHERE id IN (?)";
@@ -32,7 +36,7 @@ const addToOrder = async (req, res) => {
 
     // ORDERS_TB INSERT (ORDERS_TB id 있어야 함)
     let ordersSql = `INSERT INTO ORDERS_TB (book_title, total_amount, total_price, user_id, delivery_id) VALUES (?, ?, ?, ?, ?)`;
-    let ordersValues = [first_book_title, total_amount, total_price, user_id];
+    let ordersValues = [first_book_title, total_amount, total_price, authorization.id];
 
     // ORDERED_BOOKS_TB INSERT (가장 마지막에 되어야 함)
     let orderedBooksSql = `INSERT INTO ORDERED_BOOKS_TB (order_id, book_id, amount) VALUES ?`;
