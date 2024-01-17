@@ -7,7 +7,8 @@ const allReadBooks = async (req, res) => {
     let offset = (parseInt(currentPage) - 1) * parseInt(limit);
     let values = [];
     let likeSql = "SELECT count(*) FROM LIKES_TB WHERE liked_book_id = BOOKS_TB.id";
-    let sql = `SELECT *, (${likeSql}) AS likes FROM BOOKS_TB`;
+    let sql = `SELECT SQL_CALC_FOUND_ROWS *, (${likeSql}) AS likes FROM BOOKS_TB`;
+    let countSql = "SELECT found_rows() AS counts";
 
     if (category_id && recent) {
         sql += " WHERE category_id = ? AND pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()";
@@ -24,11 +25,23 @@ const allReadBooks = async (req, res) => {
 
     try {
         let [results, fields] = await conn.query(sql, values);
+        let [countResults, fields2] = await conn.query(countSql);
 
-        if (results.length) {
-            return res.status(StatusCodes.OK).json(results);
+        let pagination = {
+            totalCount: countResults[0].counts,
+            currentPage: currentPage
+        }
+
+        if (results !== undefined && results !== null && results.length > 0) {
+            return res.status(StatusCodes.OK).json({
+                books: results,
+                pagination
+            });
         } else {
-            return res.status(StatusCodes.NOT_FOUND).json([]);
+            return res.status(StatusCodes.OK).json({
+                books: [],
+                pagination
+            });
         }
     } catch (error) {
         console.error("Error reading book detail:", error);
