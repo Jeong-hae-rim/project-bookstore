@@ -15,12 +15,16 @@ const allReadCartItems = async (req, res) => {
         sql += "AND CART_ITEMS_TB.id IN (?)"
     }
 
-    let [results, fields] = await conn.query(sql, [decoded.id, selected]);
+    try {
+        let [results, fields] = await conn.query(sql, [decoded.id, selected]);
 
-    if (results[0]) {
-        return res.status(StatusCodes.OK).json(results);
-    } else {
-        return res.status(StatusCodes.NOT_FOUND).end();
+        return (results !== undefined && results !== null && results.length > 0) ?
+            res.status(StatusCodes.OK).json(results) :
+            res.status(StatusCodes.OK).json([]);
+    } catch (error) {
+        console.error("Error reading cart lists:", error);
+
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
     }
 }
 
@@ -30,27 +34,55 @@ const addToCarts = async (req, res) => {
 
     let sql = "INSERT INTO CART_ITEMS_TB (book_id, amount, user_id) VALUES (?, ?, ?)";
 
-    let [results, fields] = await conn.query(sql, [parseInt(book_id), parseInt(amount), decoded.id]);
+    try {
+        let [results, fields] = await conn.query(sql, [parseInt(book_id), parseInt(amount), decoded.id]);
 
-    if (results.affectedRows === 0) {
-        return res.status(StatusCodes.BAD_REQUEST).end();
-    } else {
-        return res.status(StatusCodes.OK).json(results);
+        if (results.affectedRows === 0) {
+            return res.status(StatusCodes.BAD_REQUEST).end();
+        } else {
+            return res.status(StatusCodes.OK).json(results);
+        }
+    } catch (error) {
+        console.error("Error add cart item:", error);
+
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
     }
 }
 
-const removeToCarts = async (req, res) => {
+//id 단일로 들어올 때와 items(배열)이 들어올 때 두 경우를 나누어 처리
+const removeToCarts = async (req, res, items) => {
     const { id } = req.params;
+    decodedJWT(req, res);
 
-    let sql = "DELETE FROM CART_ITEMS_TB WHERE id = ?";
+    let sql = "";
+    let value = [];
 
-    let [results, fields] = await conn.query(sql, [parseInt(id)]);
+    try {
 
-    if (results.affectedRows === 0) {
-        return res.status(StatusCodes.BAD_REQUEST).end();
-    } else {
-        return res.status(StatusCodes.OK).json(results);
+        if (id) {
+            sql = "DELETE FROM CART_ITEMS_TB WHERE id = ?";
+            value = [parseInt(id)];
+
+            let [results, fields] = await conn.query(sql, value);
+
+            if (results.affectedRows === 0) {
+                return res.status(StatusCodes.BAD_REQUEST).end();
+            } else {
+                return res.status(StatusCodes.OK).json(results);
+            }
+        } else {
+            sql = "DELETE FROM CART_ITEMS_TB WHERE id IN (?)";
+            value = [items];
+
+            return await conn.query(sql, value);
+        }
+
+    } catch (error) {
+        console.error("Error remove cart item:", error);
+
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
     }
+
 }
 
 module.exports = {

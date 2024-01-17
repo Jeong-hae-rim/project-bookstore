@@ -1,6 +1,7 @@
 const conn = require("../db");
 const { StatusCodes } = require("http-status-codes");
 const { decodedJWT, errorInsertSQL } = require("../helper");
+const { removeToCarts } = require("./cartController");
 
 const readAllOrder = async (req, res) => {
     const authorization = decodedJWT(req, res);
@@ -60,7 +61,7 @@ const addToOrder = async (req, res) => {
         const [orderedBooksResult, fields4] = await conn.query(orderedBooksSql, [orderedBooksValues]);
         await errorInsertSQL(orderedBooksResult.affectedRows, 'orderedBooksSql', res);
 
-        const [cartRemoveResults, fields5] = await removeToCartItem(items);
+        const [cartRemoveResults, fields5] = await removeToCarts(req, res, items);
         await errorInsertSQL(cartRemoveResults.affectedRows, 'cartRemoveSql', res);
 
         return res.status(StatusCodes.OK).json({
@@ -73,18 +74,6 @@ const addToOrder = async (req, res) => {
         console.error("Transaction failed:", error);
 
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
-    }
-}
-
-const removeToCartItem = async (items) => {
-    decodedJWT(req, res);
-
-    let sql = "DELETE FROM CART_ITEMS_TB WHERE id IN (?)";
-    try {
-        return await conn.query(sql, [items]);
-    } catch (error) {
-        console.error("Error removing items from cart:", error);
-        throw error;
     }
 }
 
