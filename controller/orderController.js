@@ -13,8 +13,19 @@ const readAllOrder = async (req, res) => {
     try {
         let [results, fields] = await conn.query(sql, [authorization.id]);
 
+        const formattedResults = results.map(result => ({
+            id: result.id,
+            bookTitle: result.book_title,
+            totalAmount: result.total_amount,
+            totalPrice: result.total_price,
+            receiver: result.receiver,
+            contact: result.contact,
+            address: result.address,
+            createdAt: result.created_at
+        }));
+
         return (results !== undefined && results !== null && results.length > 0) ?
-            res.status(StatusCodes.OK).json(results) :
+            res.status(StatusCodes.OK).json(formattedResults) :
             res.status(StatusCodes.OK).json([]);
     } catch (error) {
         console.error("Error reading orders:", error);
@@ -24,7 +35,7 @@ const readAllOrder = async (req, res) => {
 }
 
 const addToOrder = async (req, res) => {
-    const { items, delivery, total_amount, total_price, first_book_title } = req.body;
+    const { items, delivery, totalAmount, totalPrice, firstBookTitle } = req.body;
     const authorization = decodedJWT(req, res);
 
     // CART_ITEMS_TB SELECT id 조건절
@@ -36,7 +47,7 @@ const addToOrder = async (req, res) => {
 
     // ORDERS_TB INSERT (ORDERS_TB id 있어야 함)
     let ordersSql = `INSERT INTO ORDERS_TB (book_title, total_amount, total_price, user_id, delivery_id) VALUES (?, ?, ?, ?, ?)`;
-    let ordersValues = [first_book_title, total_amount, total_price, authorization.id];
+    let ordersValues = [firstBookTitle, totalAmount, totalPrice, authorization.id];
 
     // ORDERED_BOOKS_TB INSERT (가장 마지막에 되어야 함)
     let orderedBooksSql = `INSERT INTO ORDERED_BOOKS_TB (order_id, book_id, amount) VALUES ?`;
@@ -89,8 +100,16 @@ const readDetailOrder = async (req, res) => {
     try {
         const [results, fields] = await conn.query(sql, [parseInt(id)]);
 
+        const formattedResults = results.map(result => ({
+            bookId: result.book_id,
+            title: result.title,
+            author: result.author,
+            price: result.price,
+            amount: result.amount,
+        }));
+
         return (results !== undefined && results !== null && results.length > 0) ?
-            res.status(StatusCodes.OK).json(results) :
+            res.status(StatusCodes.OK).json(formattedResults) :
             res.status(StatusCodes.OK).json([]);
     } catch (error) {
         console.error("Error reading orders detail:", error);

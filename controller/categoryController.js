@@ -7,8 +7,13 @@ const allReadCategory = async (req, res) => {
     try {
         let [results, fields] = await conn.query(sql);
 
+        const formattedResults = results.map(result => ({
+            categoryId: result.category_id,
+            genre: result.genre
+        }));
+
         if (results.length) {
-            return res.status(StatusCodes.OK).json(results);
+            return res.status(StatusCodes.OK).json(formattedResults);
         } else {
             return res.status(StatusCodes.NOT_FOUND).end();
         }
