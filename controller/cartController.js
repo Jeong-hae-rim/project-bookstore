@@ -18,8 +18,17 @@ const allReadCartItems = async (req, res) => {
     try {
         let [results, fields] = await conn.query(sql, [decoded.id, selected]);
 
+        const formattedResults = results.map(result => ({
+            id: result.id,
+            bookId: result.book_id,
+            title: result.title,
+            summary: result.summary,
+            amount: result.amount,
+            price: result.price
+        }));
+
         return (results !== undefined && results !== null && results.length > 0) ?
-            res.status(StatusCodes.OK).json(results) :
+            res.status(StatusCodes.OK).json(formattedResults) :
             res.status(StatusCodes.OK).json([]);
     } catch (error) {
         console.error("Error reading cart lists:", error);
@@ -29,13 +38,13 @@ const allReadCartItems = async (req, res) => {
 }
 
 const addToCarts = async (req, res) => {
-    const { book_id, amount } = req.body;
+    const { bookId, amount } = req.body;
     const decoded = decodedJWT(req, res);
 
     let sql = "INSERT INTO CART_ITEMS_TB (book_id, amount, user_id) VALUES (?, ?, ?)";
 
     try {
-        let [results, fields] = await conn.query(sql, [parseInt(book_id), parseInt(amount), decoded.id]);
+        let [results, fields] = await conn.query(sql, [parseInt(bookId), parseInt(amount), decoded.id]);
 
         if (results.affectedRows === 0) {
             return res.status(StatusCodes.BAD_REQUEST).end();
