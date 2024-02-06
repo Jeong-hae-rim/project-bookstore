@@ -1,11 +1,15 @@
-const express = require("express");
-const dotenv = require("dotenv");
-const app = express();
+import express from "express";
+import dotenv = require("dotenv");
 
 dotenv.config();
 
+let app = express();
+app.use(express.urlencoded({ extended: false }));
+
 app.listen(process.env.PORT, () => {
-    console.log(`port ${process.env.PORT} is running...`)
+    console.log("**----------------------------------------**");
+    console.log(`====       port ${process.env.PORT} is running...      ====`);
+    console.log("**----------------------------------------**");
 });
 
 const userRouter = require("./routes/users");
