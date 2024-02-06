@@ -33,6 +33,8 @@ const userLogin = async (req, res) => {
     const { email, password } = req.body;
     let sql = "SELECT * FROM USERS_TB WHERE email = ?";
 
+    console.log(email);
+
     try {
         let [results, fields] = await conn.query(sql, email);
         const pwdHashed = crypto.pbkdf2Sync(password, results[0].salt, 10000, 10, 'sha512').toString('base64');

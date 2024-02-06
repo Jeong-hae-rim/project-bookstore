@@ -1,8 +1,9 @@
-const express = require("express");
+import express from "express";
 const {
     allReadBooks,
-    detailReadBook
+    detailReadBook,
 } = require("../controller/bookController");
+
 const router = express.Router();
 
 router.use(express.json());
@@ -10,4 +11,4 @@ router.use(express.json());
 router.get("/", allReadBooks);
 router.get("/:id", detailReadBook);
 
-module.exports = router;
+export default router;

@@ -1,5 +1,12 @@
 import express from "express";
-import dotenv = require("dotenv");
+import dotenv from "dotenv";
+
+import booksRouter from "./routes/books";
+import cartsRouter from "./routes/carts";
+import categoryRouter from "./routes/category";
+import likesRouter from "./routes/likes";
+import ordersRouter from "./routes/orders";
+import usersRouter from "./routes/users";
 
 dotenv.config();
 
@@ -12,16 +19,9 @@ app.listen(process.env.PORT, () => {
     console.log("**----------------------------------------**");
 });
 
-const userRouter = require("./routes/users");
-const bookRouter = require("./routes/books");
-const categoryRouter = require("./routes/category");
-const cartRouter = require("./routes/carts");
-const likeRouter = require("./routes/likes");
-const orderRouter = require("./routes/orders");
-
-app.use("/users", userRouter);
-app.use("/books", bookRouter);
+app.use("/books", booksRouter);
+app.use("/carts", cartsRouter);
 app.use("/category", categoryRouter);
-app.use("/carts", cartRouter);
-app.use("/likes", likeRouter);
-app.use("/orders", orderRouter);
+app.use("/likes", likesRouter);
+app.use("/orders", ordersRouter);
+app.use("/users", usersRouter);
