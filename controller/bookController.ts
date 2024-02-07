@@ -11,17 +11,32 @@ export async function getAllBook(req: Request, res: Response) {
 
     try {
         const result: Result = validationResult(req);
+        const errors: Array<{ path: string }> = result.array();
 
-        let bookInfo: Array<GetBooks>;
+        let bookInfo: Array<GetBooks> = [];
 
         if (result.isEmpty()) {
-            bookInfo = await BookData.getCategoryAndRecent(
-                categoryId,
+            bookInfo = await BookData.getAllBook(
                 limit,
                 currentPage,
+                categoryId,
+                recent,
             );
         } else {
-            bookInfo = await BookData.getAllBook(limit, currentPage);
+            if (errors[0].path === "categoryId") {
+                bookInfo = await BookData.getAllBook(
+                    limit,
+                    currentPage,
+                    undefined,
+                    recent,
+                );
+            } else if (errors[0].path === "recent") {
+                bookInfo = await BookData.getAllBook(
+                    limit,
+                    currentPage,
+                    categoryId,
+                );
+            }
         }
 
         res.send(bookInfo);
