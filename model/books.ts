@@ -1,6 +1,6 @@
 export type GetBooks = {
     id: number;
-    categoryId: number;
+    category_id: number;
     title: string;
     img: number;
     form: string;
@@ -12,7 +12,7 @@ export type GetBooks = {
     pages: number;
     price: number;
     likes: number;
-    pubDate: string;
+    pub_date: string;
 };
 
 export type Getpagination = {

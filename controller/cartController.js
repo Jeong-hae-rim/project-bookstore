@@ -1,6 +1,6 @@
 const conn = require("../db");
 const { StatusCodes } = require("http-status-codes");
-const { decodedJWT } = require("../helper");
+const { decodedJWT } = require("../util");
 
 const allReadCartItems = async (req, res) => {
     const { selected } = req.body;

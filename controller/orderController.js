@@ -1,6 +1,6 @@
 const conn = require("../db");
 const { StatusCodes } = require("http-status-codes");
-const { decodedJWT, errorInsertSQL } = require("../helper");
+const { decodedJWT, errorInsertSQL } = require("../util");
 const { removeToCarts } = require("./cartController");
 
 const readAllOrder = async (req, res) => {

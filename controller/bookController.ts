@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { GetBooks, Getpagination } from "@model/books";
 import * as BookData from "@services/books";
+import { mapData } from "@util/formatted";
 import { Result, validationResult } from "express-validator";
 
 export async function getAllBook(req: Request, res: Response) {
@@ -39,7 +40,21 @@ export async function getAllBook(req: Request, res: Response) {
             }
         }
 
-        res.send(bookInfo);
+        let totalBookCount: Array<{ totalRows: number }> =
+            await BookData.getCountPagination();
+        let firstRow = totalBookCount[0];
+
+        let paginationInfo: Getpagination = {
+            totalCount: firstRow.totalRows,
+            currentPage: currentPage,
+        };
+
+        const formattedResults = bookInfo.map((result) => mapData(result));
+
+        res.send({
+            books: formattedResults,
+            pagination: paginationInfo,
+        });
     } catch (error) {
         console.error("Error in getAllBook controller:", error);
         res.status(500).send("Internal Server Error");
