@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { GetBooks, Getpagination } from "../model/books";
-import * as BookData from "../db/books";
+import { GetBooks, Getpagination } from "@model/books";
+import * as BookData from "@services/books";
 import { Result, validationResult } from "express-validator";
 
 export async function getAllBook(req: Request, res: Response) {

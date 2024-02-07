@@ -1,7 +1,7 @@
 import express from "express";
 import { ValidationChain, query } from "express-validator";
 
-import * as bookController from "../controller/bookController";
+import * as bookController from "@controller/bookController";
 
 // const {
 //     allReadBooks,
