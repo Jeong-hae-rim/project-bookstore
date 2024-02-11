@@ -7,7 +7,7 @@ dotenv.config();
 
 const decodedJWT = (req, res) => {
     try {
-        let receivedJWT = req.headers["authorization"]
+        let receivedJWT = req.headers["authorization"];
 
         if (receivedJWT) {
             return jwt.verify(receivedJWT, process.env.PRIVATE_KEY);
@@ -19,19 +19,19 @@ const decodedJWT = (req, res) => {
 
         if (err instanceof TokenExpiredError) {
             return res.status(StatusCodes.UNAUTHORIZED).json({
-                "message": "로그인 세션이 만료되었습니다. 다시 로그인해 주세요."
-            })
+                message: "로그인 세션이 만료되었습니다. 다시 로그인해 주세요.",
+            });
         }
 
         if (err instanceof JsonWebTokenError) {
             return res.status(StatusCodes.BAD_REQUEST).json({
-                "message": "잘못된 토큰입니다."
-            })
+                message: "잘못된 토큰입니다.",
+            });
         }
 
         return err;
     }
-}
+};
 
 const errorInsertSQL = async (results, queryName, res) => {
     if (results === 0 || !results) {
@@ -39,6 +39,6 @@ const errorInsertSQL = async (results, queryName, res) => {
 
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
     }
-}
+};
 
-module.exports = { decodedJWT, errorInsertSQL };
+exports.default = { decodedJWT, errorInsertSQL };

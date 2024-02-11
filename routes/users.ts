@@ -1,11 +1,12 @@
-const express = require("express");
-const router = express.Router();
+import express from "express";
 const {
     userJoin,
     userLogin,
     requestPasswordReset,
-    passwordReset
+    passwordReset,
 } = require("../controller/userController");
+
+const router = express.Router();
 
 router.use(express.json());
 
@@ -14,4 +15,4 @@ router.post("/login", userLogin);
 router.post("/reset", requestPasswordReset);
 router.put("/reset", passwordReset);
 
-module.exports = router;
+export default router;
