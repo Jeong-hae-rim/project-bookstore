@@ -12,7 +12,7 @@ export type GetBooks = {
     pages: number;
     price: number;
     likes: number;
-    is_liked: boolean;
+    is_liked: number;
     pub_date: string;
 };
 
