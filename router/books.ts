@@ -3,11 +3,6 @@ import { ValidationChain, query } from "express-validator";
 
 import * as bookController from "@controller/bookController";
 
-// const {
-//     allReadBooks,
-//     detailReadBook,
-// } = require("../controller/bookController");
-
 const router = express.Router();
 
 router.use(express.json());
@@ -20,6 +15,6 @@ export const validateRules: ValidationChain[] = [
 ];
 
 router.get("/", validateRules, bookController.getAllBook);
-// router.get("/:id", detailReadBook);
+router.get("/:id", bookController.getDetailBook);
 
 export default router;

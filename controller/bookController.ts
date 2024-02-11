@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import { GetBooks, Getpagination } from "@model/books";
-import * as BookData from "@services/books";
+import * as BookData from "@service/books";
 import { formatData } from "@utils/formatted";
 import { CATEGORY_ID, RECENT } from "@utils/constants";
+import { decodedJWT } from "@utils/decodedJTW";
 import { Result, validationResult } from "express-validator";
 
 export async function getAllBook(req: Request, res: Response) {
@@ -58,6 +59,21 @@ export async function getAllBook(req: Request, res: Response) {
         });
     } catch (error) {
         console.error("Error in getAllBook controller:", error);
+        res.status(500).send("Internal Server Error");
+    }
+}
+
+export async function getDetailBook(req: Request, res: Response) {
+    const { id } = req.params;
+    const authorization = decodedJWT(req, res);
+
+    try {
+        console.log(id);
+        console.log(authorization);
+
+        res.send({});
+    } catch (error) {
+        console.error("Error in getDetailBook controller:", error);
         res.status(500).send("Internal Server Error");
     }
 }
