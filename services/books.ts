@@ -1,5 +1,5 @@
 import conn from "@db/index";
-import { GetBooks, Getpagination } from "@model/books";
+import { GetBooks } from "@model/books";
 
 export async function getLikeCountSql(): Promise<string> {
     return "SELECT count(*) FROM LIKES_TB WHERE liked_book_id = BOOKS_TB.id";

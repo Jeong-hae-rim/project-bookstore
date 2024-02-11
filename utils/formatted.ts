@@ -19,7 +19,7 @@ interface BookMapping {
     created_at?: string;
 }
 
-export function mapData(result: BookMapping) {
+export function formatData(result: BookMapping) {
     return {
         id: result.id,
         title: result.title || result.book_title, // 'title' 또는 'book_title' 중 하나를 사용

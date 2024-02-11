@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { GetBooks, Getpagination } from "@model/books";
 import * as BookData from "@services/books";
-import { mapData } from "@util/formatted";
+import { formatData } from "@utils/formatted";
+import { CATEGORY_ID, RECENT } from "@utils/constants";
 import { Result, validationResult } from "express-validator";
 
 export async function getAllBook(req: Request, res: Response) {
@@ -24,14 +25,14 @@ export async function getAllBook(req: Request, res: Response) {
                 recent,
             );
         } else {
-            if (errors[0].path === "categoryId") {
+            if (errors[0].path === CATEGORY_ID) {
                 bookInfo = await BookData.getAllBook(
                     limit,
                     currentPage,
                     undefined,
                     recent,
                 );
-            } else if (errors[0].path === "recent") {
+            } else if (errors[0].path === RECENT) {
                 bookInfo = await BookData.getAllBook(
                     limit,
                     currentPage,
@@ -49,7 +50,7 @@ export async function getAllBook(req: Request, res: Response) {
             currentPage: currentPage,
         };
 
-        const formattedResults = bookInfo.map((result) => mapData(result));
+        const formattedResults = bookInfo.map((result) => formatData(result));
 
         res.send({
             books: formattedResults,
