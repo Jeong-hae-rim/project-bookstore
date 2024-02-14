@@ -1,4 +1,4 @@
-const conn = require("../db");
+const conn = require("../db/index");
 const { StatusCodes } = require("http-status-codes");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");

@@ -1,9 +1,11 @@
 import { Request, Response } from "express";
+import { Result, validationResult } from "express-validator";
+
 import { GetBooks, Getpagination } from "@model/books";
-import * as BookData from "@services/books";
+import * as BookData from "@service/books";
 import { formatData } from "@utils/formatted";
 import { CATEGORY_ID, RECENT } from "@utils/constants";
-import { Result, validationResult } from "express-validator";
+import { decodedJWT } from "@utils/decodedJTW";
 
 export async function getAllBook(req: Request, res: Response) {
     const categoryId = req.query.categoryId as string;
@@ -52,12 +54,42 @@ export async function getAllBook(req: Request, res: Response) {
 
         const formattedResults = bookInfo.map((result) => formatData(result));
 
-        res.send({
+        return res.send({
             books: formattedResults,
             pagination: paginationInfo,
         });
     } catch (error) {
         console.error("Error in getAllBook controller:", error);
-        res.status(500).send("Internal Server Error");
+        return res.status(500).send("Internal Server Error");
+    }
+}
+
+export async function getDetailBook(req: Request, res: Response) {
+    const id = req.params.id as unknown as number;
+
+    try {
+        const result: Result = validationResult(req);
+
+        let bookInfo: Array<GetBooks> = [];
+        let userId = "2";
+
+        if (isNaN(id)) {
+            console.error("Validation failed: id is not a valid integer");
+            return res
+                .status(400)
+                .send("Validation failed: id is not a valid integer");
+        }
+
+        if (result.isEmpty()) {
+            bookInfo = await BookData.getDetailBook(userId, id);
+
+            const formattedResults = bookInfo.map((result) =>
+                formatData(result),
+            );
+            return res.send(formattedResults);
+        }
+    } catch (error) {
+        console.error("Error in getDetailBook controller:", error);
+        return res.status(500).send("Internal Server Error");
     }
 }
