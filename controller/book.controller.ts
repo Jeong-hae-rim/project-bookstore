@@ -8,7 +8,8 @@ import { formatData } from "@utils/formatted";
 import { CATEGORY_ID, RECENT } from "@utils/constants";
 import { decodedJWT } from "@utils/decodedJTW";
 
-import * as BookData from "@service/book.service";
+import * as BookService from "@service/book.service";
+import * as PaginationService from "@service/pagination.service";
 
 export async function getAllBook(req: Request, res: Response) {
     const categoryId = req.query.categoryId as string;
@@ -23,7 +24,7 @@ export async function getAllBook(req: Request, res: Response) {
         let bookInfo: Array<Book> = [];
 
         if (result.isEmpty()) {
-            bookInfo = await BookData.getAllBook(
+            bookInfo = await BookService.getAllBook(
                 limit,
                 currentPage,
                 categoryId,
@@ -31,14 +32,14 @@ export async function getAllBook(req: Request, res: Response) {
             );
         } else {
             if (errors[0].path === CATEGORY_ID) {
-                bookInfo = await BookData.getAllBook(
+                bookInfo = await BookService.getAllBook(
                     limit,
                     currentPage,
                     undefined,
                     recent,
                 );
             } else if (errors[0].path === RECENT) {
-                bookInfo = await BookData.getAllBook(
+                bookInfo = await BookService.getAllBook(
                     limit,
                     currentPage,
                     categoryId,
@@ -47,7 +48,7 @@ export async function getAllBook(req: Request, res: Response) {
         }
 
         let totalBookCount: Array<{ totalRows: number }> =
-            await BookData.getCountPagination();
+            await PaginationService.getCountPagination();
         let firstRow = totalBookCount[0];
 
         let paginationInfo: Pagination = {
@@ -84,7 +85,7 @@ export async function getDetailBook(req: Request, res: Response) {
         }
 
         if (result.isEmpty()) {
-            bookInfo = await BookData.getDetailBook(userId, id);
+            bookInfo = await BookService.getDetailBook(userId, id);
 
             const formattedResults = bookInfo.map((result) =>
                 formatData(result),
