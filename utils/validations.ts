@@ -21,3 +21,8 @@ export const userJoinValidateRules: ValidationChain[] = [
 export const passwordRequestValidateRules: ValidationChain[] = [
     body("email").isEmail().notEmpty(),
 ];
+
+export const passwordResetValidateRules: ValidationChain[] = [
+    body("email").isEmail().notEmpty(),
+    body("password").isLength({ min: 5 }).notEmpty(),
+];

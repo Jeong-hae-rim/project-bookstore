@@ -33,3 +33,20 @@ export async function postResetPasswordRequest(
         throw error;
     }
 }
+
+export async function putResetPassword(
+    email: string,
+    password: string,
+): Promise<number> {
+    try {
+        let sql = "UPDATE USERS_TB SET password = ?, salt = ? WHERE email = ?";
+        let params = [hashed(password), salt, email];
+
+        return conn
+            .execute(sql, params)
+            .then((result: any) => result[0].affectedRows);
+    } catch (error) {
+        console.error("Error in reset password service:", error);
+        throw error;
+    }
+}

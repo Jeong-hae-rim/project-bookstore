@@ -46,29 +46,6 @@ export const userJoin = async (
 
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
     }
-
-    // const salt = crypto.randomBytes(10).toString("base64");
-    // const hashed = crypto
-    //     .pbkdf2Sync(password, salt, 10000, 10, "sha512")
-    //     .toString("base64");
-    // const sql =
-    //     "INSERT INTO USERS_TB (email, name, password, salt) VALUES(?, ?, ?, ?)";
-    // const sqlArr = [email, name, hashed, salt];
-
-    // try {
-    //     if (req.body == {}) {
-    //         return res.status(StatusCodes.BAD_REQUEST).json({
-    //             message: "요청하신 값을 다시 확인해 주세요.",
-    //         });
-    //     } else {
-    //         let [results, fields] = await conn.query(sql, sqlArr);
-    //         return res.status(StatusCodes.CREATED).json(results);
-    //     }
-    // } catch (error) {
-    //     console.error("Error join user:", error);
-
-    //     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
-    // }
 };
 
 // export const userLogin = async (req, res) => {
@@ -136,28 +113,34 @@ export const requestPasswordReset = async (
     }
 };
 
-// export const passwordReset = async (req, res) => {
-//     const { email, password } = req.body;
+export const passwordReset = async (
+    req: CustomRequest<UserProps>,
+    res: Response,
+) => {
+    const { email, password } = req.body;
 
-//     const salt = crypto.randomBytes(10).toString("base64");
-//     const hashed = crypto
-//         .pbkdf2Sync(password, salt, 10000, 10, "sha512")
-//         .toString("base64");
+    const result: Result = validationResult(req);
 
-//     let sql = "UPDATE USERS_TB SET password = ?, salt = ? WHERE email = ?";
-//     let values = [hashed, salt, email];
+    try {
+        if (result.isEmpty()) {
+            const results: number = await userService.putResetPassword(
+                email,
+                password,
+            );
 
-//     try {
-//         let [results, fields] = await conn.query(sql, values);
+            if (results === 0) {
+                return res.status(StatusCodes.BAD_REQUEST).end();
+            } else {
+                return res.status(StatusCodes.OK).json(results);
+            }
+        } else {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: "요청하신 값을 다시 확인해 주세요.",
+            });
+        }
+    } catch (error) {
+        console.error("Error password reset:", error);
 
-//         if (results.affectedRows === 0) {
-//             return res.status(StatusCodes.BAD_REQUEST).end();
-//         } else {
-//             return res.status(StatusCodes.OK).json(results);
-//         }
-//     } catch (error) {
-//         console.error("Error password reset:", error);
-
-//         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
-//     }
-// };
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+    }
+};

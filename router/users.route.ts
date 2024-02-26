@@ -2,6 +2,7 @@ import express from "express";
 import * as userController from "@controller/user.controller";
 import {
     passwordRequestValidateRules,
+    passwordResetValidateRules,
     userJoinValidateRules,
 } from "@utils/validations";
 
@@ -16,6 +17,6 @@ router.post(
     passwordRequestValidateRules,
     userController.requestPasswordReset,
 );
-// router.put("/reset", userController.passwordReset);
+router.put("/reset", passwordResetValidateRules, userController.passwordReset);
 
 export default router;
