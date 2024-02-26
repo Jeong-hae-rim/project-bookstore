@@ -9,19 +9,6 @@ export const getIsLikeSql = async () => {
     return "SELECT EXISTS (SELECT * FROM LIKES_TB WHERE user_id = ? AND liked_book_id = ?)";
 };
 
-export async function getCountPagination(): Promise<
-    Array<{ totalRows: number }>
-> {
-    try {
-        let countSql: string = "SELECT COUNT(*) AS totalRows FROM BOOKS_TB";
-
-        return conn.execute(countSql).then((result: any) => result[0]);
-    } catch (error) {
-        console.error("Error in getCountPage service:", error);
-        throw error;
-    }
-}
-
 export async function getAllBook(
     limit: string,
     currentPage: string,
