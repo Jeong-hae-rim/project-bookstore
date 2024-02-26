@@ -22,7 +22,7 @@ export const passwordRequestValidateRules: ValidationChain[] = [
     body("email").isEmail().notEmpty(),
 ];
 
-export const passwordResetValidateRules: ValidationChain[] = [
+export const userDataValidateRules: ValidationChain[] = [
     body("email").isEmail().notEmpty(),
     body("password").isLength({ min: 5 }).notEmpty(),
 ];
