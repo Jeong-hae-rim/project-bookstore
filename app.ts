@@ -18,6 +18,7 @@ const corsOptions = {
 
 let app = express();
 app.use(express.urlencoded({ extended: false }));
+app.use(cors(corsOptions));
 
 app.listen(process.env.PORT, () => {
     console.log("**----------------------------------------**");
@@ -25,9 +26,9 @@ app.listen(process.env.PORT, () => {
     console.log("**----------------------------------------**");
 });
 
-app.use("/books", cors(corsOptions), booksRouter);
-app.use("/carts", cors(corsOptions), cartsRouter);
-app.use("/category", cors(corsOptions), categoryRouter);
-app.use("/likes", cors(corsOptions), likesRouter);
-app.use("/orders", cors(corsOptions), ordersRouter);
-app.use("/users", cors(corsOptions), usersRouter);
+app.use("/books", booksRouter);
+app.use("/carts", cartsRouter);
+app.use("/category", categoryRouter);
+app.use("/likes", likesRouter);
+app.use("/orders", ordersRouter);
+app.use("/users", usersRouter);
