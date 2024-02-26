@@ -1,11 +1,14 @@
 import { Request, Response } from "express";
 import { Result, validationResult } from "express-validator";
 
-import { GetBooks, Getpagination } from "@model/books";
-import * as BookData from "@service/books";
+import { Book, BookDetail } from "@model/book.model";
+import { Pagination } from "@model/pagination.model";
+
 import { formatData } from "@utils/formatted";
 import { CATEGORY_ID, RECENT } from "@utils/constants";
 import { decodedJWT } from "@utils/decodedJTW";
+
+import * as BookData from "@service/book.service";
 
 export async function getAllBook(req: Request, res: Response) {
     const categoryId = req.query.categoryId as string;
@@ -17,7 +20,7 @@ export async function getAllBook(req: Request, res: Response) {
         const result: Result = validationResult(req);
         const errors: Array<{ path: string }> = result.array();
 
-        let bookInfo: Array<GetBooks> = [];
+        let bookInfo: Array<Book> = [];
 
         if (result.isEmpty()) {
             bookInfo = await BookData.getAllBook(
@@ -47,7 +50,7 @@ export async function getAllBook(req: Request, res: Response) {
             await BookData.getCountPagination();
         let firstRow = totalBookCount[0];
 
-        let paginationInfo: Getpagination = {
+        let paginationInfo: Pagination = {
             totalCount: firstRow.totalRows,
             currentPage: currentPage,
         };
@@ -70,7 +73,7 @@ export async function getDetailBook(req: Request, res: Response) {
     try {
         const result: Result = validationResult(req);
 
-        let bookInfo: Array<GetBooks> = [];
+        let bookInfo: BookDetail[] = [];
         let userId = "2";
 
         if (isNaN(id)) {

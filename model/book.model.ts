@@ -1,4 +1,5 @@
-export type GetBooks = {
+export interface Book {
+    [key: string]: string | number;
     id: number;
     category_id: number;
     title: string;
@@ -11,12 +12,11 @@ export type GetBooks = {
     contents: string;
     pages: number;
     price: number;
-    likes: number;
-    is_liked: number;
     pub_date: string;
-};
+    likes: number;
+}
 
-export type Getpagination = {
-    totalCount: number;
-    currentPage: string;
-};
+export interface BookDetail extends Book {
+    genre: string;
+    is_liked: number;
+}
