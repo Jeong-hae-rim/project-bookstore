@@ -15,7 +15,21 @@ export async function postUserJoin(
 
         return conn.execute(sql, sqlArr).then((result: any) => result[0]);
     } catch (error) {
-        console.error("Error in getDetailBook service:", error);
+        console.error("Error in user join service:", error);
+        throw error;
+    }
+}
+
+export async function postResetPasswordRequest(
+    email: string,
+): Promise<Array<User>> {
+    try {
+        let sql = "SELECT * FROM USERS_TB WHERE email = ?";
+        const sqlArr = [email];
+
+        return conn.execute(sql, sqlArr).then((result: any) => result[0]);
+    } catch (error) {
+        console.error("Error in reset password request service:", error);
         throw error;
     }
 }

@@ -113,26 +113,28 @@ export const userJoin = async (
 //     }
 // };
 
-// export const requestPasswordReset = async (req, res) => {
-//     const { email } = req.body;
-//     let sql = "SELECT * FROM USERS_TB WHERE email = ?";
+export const requestPasswordReset = async (
+    req: CustomRequest<UserProps>,
+    res: Response,
+) => {
+    const { email } = req.body;
 
-//     try {
-//         let [results, fields] = await conn.query(sql, email);
+    try {
+        const result: Result = validationResult(req);
 
-//         if (results[0]) {
-//             return res.status(StatusCodes.OK).json({
-//                 email: email,
-//             });
-//         } else {
-//             return res.status(StatusCodes.UNAUTHORIZED).end();
-//         }
-//     } catch (error) {
-//         console.error("Error password reset request:", error);
+        if (result.isEmpty()) {
+            return res.status(StatusCodes.OK).json({
+                email: email,
+            });
+        } else {
+            return res.status(StatusCodes.UNAUTHORIZED).end();
+        }
+    } catch (error) {
+        console.error("Error password reset request:", error);
 
-//         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
-//     }
-// };
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+    }
+};
 
 // export const passwordReset = async (req, res) => {
 //     const { email, password } = req.body;
