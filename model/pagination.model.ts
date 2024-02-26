@@ -1,4 +1,4 @@
-export type Pagination = {
+export interface Pagination {
     totalCount: number;
     currentPage: string;
-};
+}
