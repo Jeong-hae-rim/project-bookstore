@@ -1,13 +1,16 @@
 import express from "express";
 
 import * as bookController from "@controller/book.controller";
-import { allValidateRules, detailValidationRules } from "@utils/validations";
+import {
+    bookReadValidateRules,
+    bookDetailValidationRules,
+} from "@utils/validations";
 
 const router = express.Router();
 
 router.use(express.json());
 
-router.get("/", allValidateRules, bookController.getAllBook);
-router.get("/:id", detailValidationRules, bookController.getDetailBook);
+router.get("/", bookReadValidateRules, bookController.getAllBook);
+router.get("/:id", bookDetailValidationRules, bookController.getDetailBook);
 
 export default router;
