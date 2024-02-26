@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 
-import booksRouter from "@router/books";
+import booksRouter from "@router/book.router";
 import cartsRouter from "@router/carts";
 import categoryRouter from "@router/category";
 import likesRouter from "@router/likes";

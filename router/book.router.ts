@@ -1,6 +1,6 @@
 import express from "express";
 
-import * as bookController from "@controller/bookController";
+import * as bookController from "@controller/book.controller";
 import { allValidateRules, detailValidationRules } from "@utils/validations";
 
 const router = express.Router();

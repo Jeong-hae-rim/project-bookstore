@@ -1,5 +1,5 @@
 import conn from "@db/index";
-import { GetBooks } from "@model/books";
+import { Book, BookDetail } from "@model/book.model";
 
 export async function getLikeCountSql(): Promise<string> {
     return "SELECT count(*) FROM LIKES_TB WHERE liked_book_id = BOOKS_TB.id";
@@ -27,7 +27,7 @@ export async function getAllBook(
     currentPage: string,
     categoryId?: string,
     recent?: string,
-): Promise<Array<GetBooks>> {
+): Promise<Array<Book>> {
     try {
         let likeSql: string = await getLikeCountSql();
         let sql: string = "";
@@ -57,7 +57,7 @@ export async function getAllBook(
 export async function getDetailBook(
     userId: string,
     id: number,
-): Promise<Array<GetBooks>> {
+): Promise<Array<BookDetail>> {
     try {
         let likeSql: string = await getLikeCountSql();
         let isLikeSql: string = await getIsLikeSql();
