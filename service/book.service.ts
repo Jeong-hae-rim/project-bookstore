@@ -19,21 +19,21 @@ export async function getAllBook(
         let likeSql: string = await getLikeCountSql();
         let sql: string = "";
 
+        const params = categoryId ? [parseInt(categoryId)] : [];
+        const offset = (parseInt(currentPage) - 1) * parseInt(limit);
+
         if (categoryId && recent) {
             sql = `SELECT *, (${likeSql}) AS likes FROM BOOKS_TB WHERE category_id = ? AND pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW() LIMIT ? OFFSET ?`;
+        } else if (categoryId) {
+            sql = `SELECT *, (${likeSql}) AS likes FROM BOOKS_TB WHERE category_id = ? LIMIT ? OFFSET ?`;
         } else if (recent) {
             sql = `SELECT *, (${likeSql}) AS likes FROM BOOKS_TB WHERE pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW() LIMIT ? OFFSET ?`;
         } else {
             sql = `SELECT *, (${likeSql}) AS likes FROM BOOKS_TB LIMIT ? OFFSET ?`;
         }
 
-        const params = categoryId
-            ? [parseInt(categoryId), parseInt(limit)]
-            : [parseInt(limit)];
-        const offset = (parseInt(currentPage) - 1) * parseInt(limit);
-
         return conn
-            .execute(sql, [...params, offset])
+            .execute(sql, [...params, parseInt(limit), offset])
             .then((result: any) => result[0]);
     } catch (error) {
         console.error("Error in getAllBook service:", error);

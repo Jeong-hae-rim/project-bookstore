@@ -5,6 +5,7 @@ export const bookReadValidateRules: ValidationChain[] = [
     query("limit").isString().notEmpty(),
     query("currentPage").isString().notEmpty(),
     query("categoryId").isString().notEmpty(),
+    query("recent").isString().notEmpty(),
 ];
 
 export const bookDetailValidationRules: ValidationChain[] = [

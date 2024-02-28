@@ -43,6 +43,7 @@ export async function getAllBook(req: Request, res: Response) {
                     limit,
                     currentPage,
                     categoryId,
+                    undefined,
                 );
             }
         }
