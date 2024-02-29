@@ -105,7 +105,6 @@ export async function getDetailBook(req: Request, res: Response) {
                     authorization.id,
                 );
             }
-
             const formattedResults = bookInfo.map((result) =>
                 formatData(result),
             );

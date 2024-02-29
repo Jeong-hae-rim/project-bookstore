@@ -3,6 +3,7 @@ const { StatusCodes } = require("http-status-codes");
 
 import { Category } from "@model/category.model";
 import * as CategoryService from "@service/category.service";
+
 import { formatData } from "@utils/formatted";
 
 export const allReadCategory = async (req: Request, res: Response) => {
