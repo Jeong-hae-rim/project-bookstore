@@ -8,7 +8,7 @@ dotenv.config();
 
 export const decodedJWT = (req: Request, res: Response) => {
     try {
-        let receivedJWT = req.headers["authorization"];
+        let receivedJWT: string | undefined = req.headers["authorization"];
 
         if (receivedJWT) {
             return jwt.verify(receivedJWT, process.env.PRIVATE_KEY as string);
