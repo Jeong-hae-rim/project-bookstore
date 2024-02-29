@@ -34,3 +34,21 @@ export async function addLike(
         throw error;
     }
 }
+
+export async function removeLike(
+    userId: number,
+    likeBookId: number,
+): Promise<number> {
+    try {
+        let sql =
+            "DELETE FROM LIKES_TB WHERE user_id = ? AND liked_book_id = ?";
+        let params = [userId, likeBookId];
+
+        return conn
+            .execute(sql, params)
+            .then((result: any) => result[0].affectedRows);
+    } catch (error) {
+        console.error("Error in remove like service:", error);
+        throw error;
+    }
+}

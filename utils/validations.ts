@@ -28,4 +28,4 @@ export const userDataValidateRules: ValidationChain[] = [
     body("password").isLength({ min: 5 }).notEmpty(),
 ];
 
-export const addLikeValidateRules: ValidationChain[] = [param("id").toInt()];
+export const likeValidateRules: ValidationChain[] = [param("id").toInt()];

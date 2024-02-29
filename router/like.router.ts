@@ -1,12 +1,13 @@
 import express from "express";
-import { addLike } from "@controller/like.controller";
-import { addLikeValidateRules } from "@utils/validations";
+
+import * as likeController from "@controller/like.controller";
+import { likeValidateRules } from "@utils/validations";
 
 const router = express.Router();
 
 router.use(express.json());
 
-router.post("/:id", addLikeValidateRules, addLike);
-// router.delete("/:id", removeLike);
+router.post("/:id", likeValidateRules, likeController.addLike);
+router.delete("/:id", likeValidateRules, likeController.removeLike);
 
 export default router;

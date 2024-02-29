@@ -49,26 +49,35 @@ export const addLike = async (req: Request, res: Response) => {
     }
 };
 
-// export const removeLike = async (req: Request, res: Response) => {
-//     const { id } = req.params;
-//     const decoded = decodedJWT(req, res);
+export const removeLike = async (req: Request, res: Response) => {
+    const id = req.params.id as unknown as number;
+    const authorization = decodedJWT(req, res) as AuthorizationProps;
 
-//     let sql = "DELETE FROM LIKES_TB WHERE user_id = ? AND liked_book_id = ?";
+    try {
+        const result: Result = validationResult(req);
 
-//     try {
-//         let [results, fields] = await conn.query(sql, [
-//             decoded.id,
-//             parseInt(id),
-//         ]);
+        if (isNaN(id)) {
+            console.error("Validation failed: id is not a valid integer");
+            return res
+                .status(400)
+                .send("Validation failed: id is not a valid integer");
+        }
 
-//         if (results.affectedRows === 0) {
-//             return res.status(StatusCodes.BAD_REQUEST).end();
-//         } else {
-//             return res.status(StatusCodes.OK).json(results);
-//         }
-//     } catch (error) {
-//         console.error("Error add like:", error);
+        if (result.isEmpty()) {
+            const results: number = await likeService.removeLike(
+                authorization.id,
+                id,
+            );
 
-//         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
-//     }
-// };
+            if (results === 0) {
+                return res.status(StatusCodes.BAD_REQUEST).end();
+            } else {
+                return res.status(StatusCodes.OK).json(results);
+            }
+        }
+    } catch (error) {
+        console.error("Error remove like:", error);
+
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+    }
+};
