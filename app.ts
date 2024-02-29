@@ -7,7 +7,7 @@ import cartsRouter from "@router/carts";
 import categoryRouter from "@router/category.router";
 import likesRouter from "@router/likes";
 import ordersRouter from "@router/orders";
-import usersRouter from "@router/users";
+import usersRouter from "@router/users.route";
 
 dotenv.config();
 

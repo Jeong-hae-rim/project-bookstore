@@ -43,6 +43,7 @@ export async function getAllBook(req: Request, res: Response) {
                     limit,
                     currentPage,
                     categoryId,
+                    undefined,
                 );
             }
         }
@@ -68,8 +69,19 @@ export async function getAllBook(req: Request, res: Response) {
     }
 }
 
+interface AuthorizationProps {
+    id: number;
+    email: string;
+    iat: number;
+    exp: number;
+    iss: string;
+}
+
 export async function getDetailBook(req: Request, res: Response) {
     const id = req.params.id as unknown as number;
+    const authorization = decodedJWT(req, res) as AuthorizationProps;
+
+    console.log(authorization);
 
     try {
         const result: Result = validationResult(req);
@@ -85,12 +97,18 @@ export async function getDetailBook(req: Request, res: Response) {
         }
 
         if (result.isEmpty()) {
-            bookInfo = await BookService.getDetailBook(userId, id);
-
+            if (!authorization) {
+                bookInfo = await BookService.getDetailBook(id, undefined);
+            } else {
+                bookInfo = await BookService.getDetailBook(
+                    id,
+                    authorization.id,
+                );
+            }
             const formattedResults = bookInfo.map((result) =>
                 formatData(result),
             );
-            return res.send(formattedResults);
+            return res.send(formattedResults[0]);
         }
     } catch (error) {
         console.error("Error in getDetailBook controller:", error);
