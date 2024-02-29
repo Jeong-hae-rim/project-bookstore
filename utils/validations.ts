@@ -29,3 +29,4 @@ export const userDataValidateRules: ValidationChain[] = [
 ];
 
 export const likeValidateRules: ValidationChain[] = [param("id").toInt()];
+
