@@ -18,12 +18,12 @@ function convertToCamelCase(inputStr: string) {
     return camelCaseStr;
 }
 
-export function formatData(result: MyObject) {
+export function formatData(result: any) {
     const resultData: MyObject = {};
     let resultArr = Object.keys(result);
 
     resultArr.forEach((val) => {
-        resultData[convertToCamelCase(val)] = result[val] as string | number;
+        resultData[convertToCamelCase(val)] = result[val];
     });
 
     return resultData;

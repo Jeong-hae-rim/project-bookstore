@@ -3,17 +3,13 @@ const { StatusCodes } = require("http-status-codes");
 
 import { Category } from "@model/category.model";
 import * as CategoryService from "@service/category.service";
+import { formatData } from "@utils/formatted";
 
 export const allReadCategory = async (req: Request, res: Response) => {
     try {
-        let categoryArray: Array<Category> = [];
+        let category: Array<Category> = await CategoryService.getCategory();
 
-        categoryArray = await CategoryService.getCategory();
-
-        const formattedResults = categoryArray.map((result) => ({
-            categoryId: result.category_id,
-            genre: result.genre,
-        }));
+        const formattedResults = category.map((result) => formatData(result));
 
         if (formattedResults.length) {
             return res.status(StatusCodes.OK).json(formattedResults);

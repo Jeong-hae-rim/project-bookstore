@@ -42,15 +42,21 @@ export async function getAllBook(
 }
 
 export async function getDetailBook(
-    userId: string,
     id: number,
+    userId?: number,
 ): Promise<Array<BookDetail>> {
     try {
         let likeSql: string = await getLikeCountSql();
         let isLikeSql: string = await getIsLikeSql();
-        let sql: string = `SELECT *, (${likeSql}) AS likes, (${isLikeSql}) AS is_liked FROM BOOKS_TB LEFT JOIN CATEGORIES_TB ON BOOKS_TB.category_id = CATEGORIES_TB.category_id WHERE BOOKS_TB.id = ?`;
+        let sql: string = "";
 
-        const params = [parseInt(userId), id, id];
+        if (userId) {
+            sql = `SELECT *, (${likeSql}) AS likes, (${isLikeSql}) AS is_liked FROM BOOKS_TB LEFT JOIN CATEGORIES_TB ON BOOKS_TB.category_id = CATEGORIES_TB.category_id WHERE BOOKS_TB.id = ?`;
+        } else {
+            sql = `SELECT *, (${likeSql}) AS likes FROM BOOKS_TB LEFT JOIN CATEGORIES_TB ON BOOKS_TB.category_id = CATEGORIES_TB.category_id WHERE BOOKS_TB.id = ?`;
+        }
+
+        const params = userId ? [userId, id, id] : [id];
 
         return conn.execute(sql, params).then((result: any) => result[0]);
     } catch (error) {
