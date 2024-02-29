@@ -27,3 +27,5 @@ export const userDataValidateRules: ValidationChain[] = [
     body("email").isEmail().notEmpty(),
     body("password").isLength({ min: 5 }).notEmpty(),
 ];
+
+export const likeValidateRules: ValidationChain[] = [param("id").toInt()];
