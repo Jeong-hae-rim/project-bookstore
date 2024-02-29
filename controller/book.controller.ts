@@ -69,7 +69,7 @@ export async function getAllBook(req: Request, res: Response) {
     }
 }
 
-interface AuthorizationProps {
+export interface AuthorizationProps {
     id: number;
     email: string;
     iat: number;

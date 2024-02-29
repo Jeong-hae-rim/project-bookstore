@@ -5,7 +5,7 @@ import cors from "cors";
 import booksRouter from "@router/book.router";
 import cartsRouter from "@router/carts";
 import categoryRouter from "@router/category.router";
-import likesRouter from "@router/likes";
+import likesRouter from "@router/like.router";
 import ordersRouter from "@router/orders";
 import usersRouter from "@router/users.route";
 
