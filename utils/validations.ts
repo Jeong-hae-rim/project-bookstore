@@ -28,5 +28,10 @@ export const userDataValidateRules: ValidationChain[] = [
     body("password").isLength({ min: 5 }).notEmpty(),
 ];
 
+// like api validation
 export const likeValidateRules: ValidationChain[] = [param("id").toInt()];
 
+// cart api validation
+export const cartValidationRules: ValidationChain[] = [
+    body("selected").isArray().notEmpty(),
+];
