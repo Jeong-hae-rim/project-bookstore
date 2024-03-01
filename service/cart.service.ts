@@ -40,3 +40,21 @@ export async function getPickCart(
         throw error;
     }
 }
+
+export async function addCart(
+    bookId: number,
+    amount: number,
+    userId: number,
+): Promise<number> {
+    try {
+        let sql =
+            "INSERT INTO CART_ITEMS_TB (book_id, amount, user_id) VALUES (?, ?, ?)";
+
+        return conn
+            .execute(sql, [bookId, amount, userId])
+            .then((result: any) => result[0].affectedRows);
+    } catch (error) {
+        console.error("Error in add cart service:", error);
+        throw error;
+    }
+}

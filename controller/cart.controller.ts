@@ -10,7 +10,7 @@ import { formatData } from "@utils/formatted";
 
 import * as cartService from "@service/cart.service";
 
-interface UserProps {
+interface CartProps {
     selected: number[];
 }
 
@@ -19,7 +19,7 @@ interface CustomRequest<T> extends Request {
 }
 
 export const allReadCartItems = async (
-    req: CustomRequest<UserProps>,
+    req: CustomRequest<CartProps>,
     res: Response,
 ) => {
     const { selected } = req.body;
@@ -56,31 +56,50 @@ export const allReadCartItems = async (
     }
 };
 
-// export const addToCarts = async (req, res) => {
-//     const { bookId, amount } = req.body;
-//     const decoded = decodedJWT(req, res);
+interface AddCartProps {
+    bookId: number;
+    amount: number;
+}
 
-//     let sql =
-//         "INSERT INTO CART_ITEMS_TB (book_id, amount, user_id) VALUES (?, ?, ?)";
+interface CustomRequest<T> extends Request {
+    body: T;
+}
 
-//     try {
-//         let [results, fields] = await conn.query(sql, [
-//             parseInt(bookId),
-//             parseInt(amount),
-//             decoded.id,
-//         ]);
+export const addToCarts = async (
+    req: CustomRequest<AddCartProps>,
+    res: Response,
+) => {
+    const { bookId, amount } = req.body;
+    const authorization = decodedJWT(req, res) as Authorization;
 
-//         if (results.affectedRows === 0) {
-//             return res.status(StatusCodes.BAD_REQUEST).end();
-//         } else {
-//             return res.status(StatusCodes.OK).json(results);
-//         }
-//     } catch (error) {
-//         console.error("Error add cart item:", error);
+    try {
+        const result: Result = validationResult(req);
 
-//         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
-//     }
-// };
+        if (result.isEmpty()) {
+            let addCartResult: number = await cartService.addCart(
+                bookId,
+                amount,
+                authorization.id,
+            );
+
+            if (addCartResult === 0) {
+                return res.status(StatusCodes.BAD_REQUEST).end();
+            } else {
+                return res
+                    .status(StatusCodes.OK)
+                    .json("성공적으로 데이터가 추가되었습니다.");
+            }
+        } else {
+            return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json("요청하는 값을 확인해 주세요.");
+        }
+    } catch (error) {
+        console.error("Error add cart item:", error);
+
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+    }
+};
 
 //id 단일로 들어올 때와 items(배열)이 들어올 때 두 경우를 나누어 처리
 // export const removeToCarts = async (req, res, items) => {
