@@ -47,7 +47,7 @@ export const allReadCartItems = async (
         } else {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json("요청하는 값을 확인해 주세요.");
+                .json({ message: "요청하는 값을 확인해 주세요." });
         }
     } catch (error) {
         console.error("Error reading cart lists:", error);
@@ -87,12 +87,12 @@ export const addToCarts = async (
             } else {
                 return res
                     .status(StatusCodes.OK)
-                    .json("성공적으로 데이터가 추가되었습니다.");
+                    .json({ message: "성공적으로 데이터가 추가되었습니다." });
             }
         } else {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json("요청하는 값을 확인해 주세요.");
+                .json({ message: "요청하는 값을 확인해 주세요." });
         }
     } catch (error) {
         console.error("Error add cart item:", error);
@@ -113,7 +113,7 @@ export const removeToCart = async (req: Request, res: Response) => {
             if (bookIdArr.length === 0) {
                 return res
                     .status(StatusCodes.BAD_REQUEST)
-                    .json("요청하는 값을 확인해 주세요.");
+                    .json({ message: "요청하는 값을 확인해 주세요." });
             } else {
                 deleteCartResult = await cartService.deleteCarts(
                     authorization.id,
@@ -125,13 +125,13 @@ export const removeToCart = async (req: Request, res: Response) => {
                 } else {
                     return res
                         .status(StatusCodes.OK)
-                        .json("성공적으로 삭제되었습니다.");
+                        .json({ message: "성공적으로 삭제되었습니다." });
                 }
             }
         } else {
             return res
                 .status(StatusCodes.BAD_REQUEST)
-                .json("요청하는 값을 확인해 주세요.");
+                .json({ message: "요청하는 값을 확인해 주세요." });
         }
     } catch (error) {
         console.error("Error remove cart item:", error);
