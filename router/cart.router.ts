@@ -1,9 +1,11 @@
 import express from "express";
-import * as cartController from "@controller/cart.controller";
 import {
     addCartValidationRules,
     cartValidationRules,
+    removeCartValidationRules,
 } from "@utils/validations";
+
+import * as cartController from "@controller/cart.controller";
 
 const router = express.Router();
 
@@ -11,6 +13,6 @@ router.use(express.json());
 
 router.get("/", cartValidationRules, cartController.allReadCartItems);
 router.post("/", addCartValidationRules, cartController.addToCarts);
-// router.delete("/:id", removeToCarts);
+router.delete("/", removeCartValidationRules, cartController.removeToCart);
 
 export default router;

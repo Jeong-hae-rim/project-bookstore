@@ -101,35 +101,41 @@ export const addToCarts = async (
     }
 };
 
-//id 단일로 들어올 때와 items(배열)이 들어올 때 두 경우를 나누어 처리
-// export const removeToCarts = async (req, res, items) => {
-//     const { id } = req.params;
-//     decodedJWT(req, res);
+export const removeToCart = async (req: Request, res: Response) => {
+    const bookIdArr: number[] = req.body.selected;
+    const authorization = decodedJWT(req, res) as Authorization;
 
-//     let sql = "";
-//     let value = [];
+    try {
+        let deleteCartResult: number | string = 0;
+        const result: Result = validationResult(req);
 
-//     try {
-//         if (id) {
-//             sql = "DELETE FROM CART_ITEMS_TB WHERE id = ?";
-//             value = [parseInt(id)];
+        if (result.isEmpty()) {
+            if (bookIdArr.length === 0) {
+                return res
+                    .status(StatusCodes.BAD_REQUEST)
+                    .json("요청하는 값을 확인해 주세요.");
+            } else {
+                deleteCartResult = await cartService.deleteCarts(
+                    authorization.id,
+                    bookIdArr,
+                );
 
-//             let [results, fields] = await conn.query(sql, value);
+                if (deleteCartResult === 0) {
+                    return res.status(StatusCodes.BAD_REQUEST).end();
+                } else {
+                    return res
+                        .status(StatusCodes.OK)
+                        .json("성공적으로 삭제되었습니다.");
+                }
+            }
+        } else {
+            return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json("요청하는 값을 확인해 주세요.");
+        }
+    } catch (error) {
+        console.error("Error remove cart item:", error);
 
-//             if (results.affectedRows === 0) {
-//                 return res.status(StatusCodes.BAD_REQUEST).end();
-//             } else {
-//                 return res.status(StatusCodes.OK).json(results);
-//             }
-//         } else {
-//             sql = "DELETE FROM CART_ITEMS_TB WHERE id IN (?)";
-//             value = [items];
-
-//             return await conn.query(sql, value);
-//         }
-//     } catch (error) {
-//         console.error("Error remove cart item:", error);
-
-//         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
-//     }
-// };
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+    }
+};

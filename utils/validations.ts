@@ -35,7 +35,12 @@ export const likeValidateRules: ValidationChain[] = [param("id").toInt()];
 export const cartValidationRules: ValidationChain[] = [
     body("selected").isArray().notEmpty(),
 ];
+
 export const addCartValidationRules: ValidationChain[] = [
     body("bookId").toInt().notEmpty(),
     body("amount").toInt().notEmpty(),
+];
+
+export const removeCartValidationRules: ValidationChain[] = [
+    body("selected").isArray().notEmpty(),
 ];
