@@ -3,3 +3,11 @@ export interface User {
     password: string;
     name: string;
 }
+
+export interface Authorization {
+    id: number;
+    email: string;
+    iat: number;
+    exp: number;
+    iss: string;
+}

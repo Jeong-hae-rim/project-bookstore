@@ -1,15 +1,17 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
+import { Result, validationResult } from "express-validator";
+
+import { Like } from "@model/like.model";
+import { Authorization } from "@model/user.model";
 
 import { decodedJWT } from "@utils/decodedJTW";
+
 import * as likeService from "@service/like.service";
-import { Like } from "@model/like.model";
-import { AuthorizationProps } from "./book.controller";
-import { Result, validationResult } from "express-validator";
 
 export const addLike = async (req: Request, res: Response) => {
     const id = req.params.id as unknown as number;
-    const authorization = decodedJWT(req, res) as AuthorizationProps;
+    const authorization = decodedJWT(req, res) as Authorization;
 
     try {
         const result: Result = validationResult(req);
@@ -51,7 +53,7 @@ export const addLike = async (req: Request, res: Response) => {
 
 export const removeLike = async (req: Request, res: Response) => {
     const id = req.params.id as unknown as number;
-    const authorization = decodedJWT(req, res) as AuthorizationProps;
+    const authorization = decodedJWT(req, res) as Authorization;
 
     try {
         const result: Result = validationResult(req);
