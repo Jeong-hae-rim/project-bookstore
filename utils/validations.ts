@@ -42,5 +42,5 @@ export const addCartValidationRules: ValidationChain[] = [
 ];
 
 export const removeCartValidationRules: ValidationChain[] = [
-    body("selected").isArray().notEmpty(),
+    param("id").toInt(),
 ];

@@ -1,5 +1,9 @@
 node_modules/
 .env
+<<<<<<< Updated upstream
 
 ### db
 data.sql
+=======
+db/
+>>>>>>> Stashed changes

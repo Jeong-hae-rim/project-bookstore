@@ -11,8 +11,9 @@ const router = express.Router();
 
 router.use(express.json());
 
-router.get("/", cartValidationRules, cartController.allReadCartItems);
+router.get("/", cartController.allReadCartItems);
+router.post("/pick", cartValidationRules, cartController.pickCartItems);
 router.post("/", addCartValidationRules, cartController.addToCarts);
-router.delete("/", removeCartValidationRules, cartController.removeToCart);
+router.delete("/:id", removeCartValidationRules, cartController.removeToCart);
 
 export default router;

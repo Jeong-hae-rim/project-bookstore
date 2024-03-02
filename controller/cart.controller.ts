@@ -18,19 +18,56 @@ interface CustomRequest<T> extends Request {
     body: T;
 }
 
-export const allReadCartItems = async (
+export const allReadCartItems = async (req: Request, res: Response) => {
+    try {
+        const authorization = decodedJWT(req, res) as Authorization;
+        let cartInfo: Cart[] = [];
+        const result: Result = validationResult(req);
+
+        if (!authorization) {
+            return res
+                .status(StatusCodes.FORBIDDEN)
+                .json({ message: "로그인이 필요합니다." });
+        }
+
+        if (result.isEmpty()) {
+            cartInfo = await cartService.getAllCart(authorization.id);
+
+            const formattedResults = cartInfo.map((result) =>
+                formatData(result),
+            );
+
+            return res.status(StatusCodes.OK).json(formattedResults);
+        } else {
+            return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json({ message: "요청하는 값을 확인해 주세요." });
+        }
+    } catch (error) {
+        console.error("Error reading cart lists:", error);
+
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+    }
+};
+
+export const pickCartItems = async (
     req: CustomRequest<CartProps>,
     res: Response,
 ) => {
     const { selected } = req.body;
-    const authorization = decodedJWT(req, res) as Authorization;
-
     try {
+        const authorization = decodedJWT(req, res) as Authorization;
         let cartInfo: Cart[] = [];
         const result: Result = validationResult(req);
 
+        if (!authorization) {
+            return res
+                .status(StatusCodes.FORBIDDEN)
+                .json({ message: "로그인이 필요합니다." });
+        }
+
         if (result.isEmpty()) {
-            if (selected.length === 0) {
+            if (selected.length === 0 || selected === undefined) {
                 cartInfo = await cartService.getAllCart(authorization.id);
             } else {
                 cartInfo = await cartService.getPickCart(
@@ -69,11 +106,16 @@ export const addToCarts = async (
     req: CustomRequest<AddCartProps>,
     res: Response,
 ) => {
-    const { bookId, amount } = req.body;
-    const authorization = decodedJWT(req, res) as Authorization;
-
     try {
+        const { bookId, amount } = req.body;
+        const authorization = decodedJWT(req, res) as Authorization;
         const result: Result = validationResult(req);
+
+        if (!authorization) {
+            return res
+                .status(StatusCodes.FORBIDDEN)
+                .json({ message: "로그인이 필요합니다." });
+        }
 
         if (result.isEmpty()) {
             let addCartResult: number = await cartService.addCart(
@@ -102,31 +144,32 @@ export const addToCarts = async (
 };
 
 export const removeToCart = async (req: Request, res: Response) => {
-    const bookIdArr: number[] = req.body.selected;
+    const orderId = req.params.id as unknown as number;
     const authorization = decodedJWT(req, res) as Authorization;
 
     try {
         let deleteCartResult: number | string = 0;
         const result: Result = validationResult(req);
 
-        if (result.isEmpty()) {
-            if (bookIdArr.length === 0) {
-                return res
-                    .status(StatusCodes.BAD_REQUEST)
-                    .json({ message: "요청하는 값을 확인해 주세요." });
-            } else {
-                deleteCartResult = await cartService.deleteCarts(
-                    authorization.id,
-                    bookIdArr,
-                );
+        if (isNaN(orderId)) {
+            console.error("Validation failed: id is not a valid integer");
+            return res
+                .status(400)
+                .send("Validation failed: id is not a valid integer");
+        }
 
-                if (deleteCartResult === 0) {
-                    return res.status(StatusCodes.BAD_REQUEST).end();
-                } else {
-                    return res
-                        .status(StatusCodes.OK)
-                        .json({ message: "성공적으로 삭제되었습니다." });
-                }
+        if (result.isEmpty()) {
+            deleteCartResult = await cartService.deleteCarts(
+                authorization.id,
+                orderId,
+            );
+
+            if (deleteCartResult === 0) {
+                return res.status(StatusCodes.BAD_REQUEST).end();
+            } else {
+                return res
+                    .status(StatusCodes.OK)
+                    .json({ message: "성공적으로 삭제되었습니다." });
             }
         } else {
             return res

@@ -65,20 +65,14 @@ export async function addCart(
 //장바구니 리스트 삭제
 export async function deleteCarts(
     userId: number,
-    items: number[],
-): Promise<number | string> {
+    orderId: number,
+): Promise<number> {
     try {
-        // 선택된 배열의 길이를 기반으로 IN 절에 대한 플레이스홀더 생성
-        if (items) {
-            const placeholders: string = createdPlaceHolder(items);
-            let sql = `DELETE FROM CART_ITEMS_TB WHERE user_id = ? AND book_id IN (${placeholders})`;
+        let sql = `DELETE FROM CART_ITEMS_TB WHERE user_id = ? AND id = ?`;
 
-            return conn
-                .execute(sql, [userId, ...items])
-                .then((result: any) => result[0].affectedRows);
-        } else {
-            return "items가 존재하지 않습니다.";
-        }
+        return conn
+            .execute(sql, [userId, orderId])
+            .then((result: any) => result[0].affectedRows);
     } catch (error) {
         console.error("Error in delete carts service:", error);
         throw error;
