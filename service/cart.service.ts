@@ -78,3 +78,18 @@ export async function deleteCarts(
         throw error;
     }
 }
+
+//장바구니 리스트에서 선택된 것만 삭제
+export async function deletePickCart(selected: number[]): Promise<number> {
+    try {
+        const placeholders: string = createdPlaceHolder(selected);
+        let sql = `DELETE FROM CART_ITEMS_TB WHERE id IN (${selected})`;
+
+        return conn
+            .execute(sql, [...selected])
+            .then((result: any) => result[0].affectedRows);
+    } catch (error) {
+        console.error("Error in delete carts service:", error);
+        throw error;
+    }
+}
