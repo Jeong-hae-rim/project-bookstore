@@ -1,16 +1,13 @@
 import express from "express";
-const {
-    readAllOrder,
-    addToOrder,
-    readDetailOrder,
-} = require("../controller/orderController");
+
+import * as orderController from "@controller/order.controller";
 
 const router = express.Router();
 
 router.use(express.json());
 
-router.get("/", readAllOrder);
-router.post("/", addToOrder);
-router.get("/:id", readDetailOrder);
+router.get("/", orderController.readAllOrder);
+router.post("/", orderController.addToOrder);
+router.get("/:id", orderController.readDetailOrder);
 
 export default router;

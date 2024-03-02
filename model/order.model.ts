@@ -20,3 +20,13 @@ export interface OrderedBooks {
     book_id: number;
     amount: number;
 }
+
+export interface OrderDetail {
+    id: number;
+    book_title: string;
+    total_amount: number;
+    total_price: number;
+    receiver: string;
+    contact: string;
+    address: string;
+}
