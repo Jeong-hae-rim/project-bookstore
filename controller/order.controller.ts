@@ -6,8 +6,9 @@ import { Authorization } from "@model/user.model";
 import { decodedJWT } from "@utils/decodedJTW";
 
 import * as orderService from "@service/order.service";
-import { OrderDetail } from "@model/order.model";
+import { OrderDetail, OrdersDetail } from "@model/order.model";
 import { formatData } from "@utils/formatted";
+import { Result, validationResult } from "express-validator";
 
 export const readAllOrder = async (req: Request, res: Response) => {
     const authorization = decodedJWT(req, res) as Authorization;
@@ -19,7 +20,7 @@ export const readAllOrder = async (req: Request, res: Response) => {
                 .json({ message: "로그인이 필요합니다." });
         }
 
-        let orderInfo: OrderDetail[] = await orderService.getAllOrders(
+        let orderInfo: OrdersDetail[] = await orderService.getAllOrders(
             authorization.id,
         );
 
@@ -114,26 +115,33 @@ export const addToOrder = async (req: Request, res: Response) => {
 };
 
 export const readDetailOrder = async (req: Request, res: Response) => {
-    // decodedJWT(req, res);
-    // const { id } = req.params;
-    // let sql = `SELECT
-    // book_id, title, author, price, amount
-    // FROM ORDERED_BOOKS_TB LEFT JOIN BOOKS_TB ON ORDERED_BOOKS_TB.book_id = BOOKS_TB.id
-    // WHERE order_id = ?`;
-    // try {
-    //     const [results, fields] = await conn.query(sql, [parseInt(id)]);
-    //     const formattedResults = results.map((result) => ({
-    //         bookId: result.book_id,
-    //         title: result.title,
-    //         author: result.author,
-    //         price: result.price,
-    //         amount: result.amount,
-    //     }));
-    //     return results !== undefined && results !== null && results.length > 0
-    //         ? res.status(StatusCodes.OK).json(formattedResults)
-    //         : res.status(StatusCodes.OK).json([]);
-    // } catch (error) {
-    //     console.error("Error reading orders detail:", error);
-    //     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
-    // }
+    const id = req.params.id as unknown as number;
+
+    try {
+        const result: Result = validationResult(req);
+
+        if (isNaN(id)) {
+            console.error("Validation failed: id is not a valid integer");
+            return res
+                .status(400)
+                .send("Validation failed: id is not a valid integer");
+        }
+
+        if (result.isEmpty()) {
+            let orderDetailInfo: OrderDetail[] =
+                await orderService.getOrderDetail(id);
+            const formattedResults = orderDetailInfo.map((result) =>
+                formatData(result),
+            );
+
+            res.status(StatusCodes.OK).json(formattedResults);
+        } else {
+            return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json({ message: "요청하는 값을 확인해 주세요." });
+        }
+    } catch (error) {
+        console.error("Error reading orders detail:", error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+    }
 };

@@ -44,3 +44,8 @@ export const addCartValidationRules: ValidationChain[] = [
 export const removeCartValidationRules: ValidationChain[] = [
     param("id").toInt(),
 ];
+
+//order
+export const orderDetailValidateRules: ValidationChain[] = [
+    param("id").toInt(),
+];

@@ -21,7 +21,7 @@ export interface OrderedBooks {
     amount: number;
 }
 
-export interface OrderDetail {
+export interface OrdersDetail {
     id: number;
     book_title: string;
     total_amount: number;
@@ -29,4 +29,13 @@ export interface OrderDetail {
     receiver: string;
     contact: string;
     address: string;
+}
+
+export interface OrderDetail {
+    id: number;
+    book_id: number;
+    title: string;
+    author: string;
+    price: number;
+    amount: number;
 }
