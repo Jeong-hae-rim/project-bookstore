@@ -1,7 +1,7 @@
 const conn = require("../db");
 const { StatusCodes } = require("http-status-codes");
 const { decodedJWT, errorInsertSQL } = require("../utils");
-const { removeToCarts } = require("./cartController");
+// const { removeToCarts } = require("./cartController");
 
 const readAllOrder = async (req, res) => {
     const authorization = decodedJWT(req, res);

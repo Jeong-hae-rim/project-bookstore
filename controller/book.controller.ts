@@ -3,6 +3,7 @@ import { Result, validationResult } from "express-validator";
 
 import { Book, BookDetail } from "@model/book.model";
 import { Pagination } from "@model/pagination.model";
+import { Authorization } from "@model/user.model";
 
 import { formatData } from "@utils/formatted";
 import { CATEGORY_ID, RECENT } from "@utils/constants";
@@ -69,25 +70,13 @@ export async function getAllBook(req: Request, res: Response) {
     }
 }
 
-export interface AuthorizationProps {
-    id: number;
-    email: string;
-    iat: number;
-    exp: number;
-    iss: string;
-}
-
 export async function getDetailBook(req: Request, res: Response) {
     const id = req.params.id as unknown as number;
-    const authorization = decodedJWT(req, res) as AuthorizationProps;
-
-    console.log(authorization);
+    const authorization = decodedJWT(req, res) as Authorization;
 
     try {
         const result: Result = validationResult(req);
-
         let bookInfo: BookDetail[] = [];
-        let userId = "2";
 
         if (isNaN(id)) {
             console.error("Validation failed: id is not a valid integer");
@@ -105,9 +94,11 @@ export async function getDetailBook(req: Request, res: Response) {
                     authorization.id,
                 );
             }
+
             const formattedResults = bookInfo.map((result) =>
                 formatData(result),
             );
+
             return res.send(formattedResults[0]);
         }
     } catch (error) {

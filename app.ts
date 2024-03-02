@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 
 import booksRouter from "@router/book.router";
-import cartsRouter from "@router/carts";
+import cartsRouter from "@router/cart.router";
 import categoryRouter from "@router/category.router";
 import likesRouter from "@router/like.router";
 import ordersRouter from "@router/orders";
