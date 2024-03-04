@@ -44,3 +44,16 @@ export const addCartValidationRules: ValidationChain[] = [
 export const removeCartValidationRules: ValidationChain[] = [
     param("id").toInt(),
 ];
+
+//order
+export const orderDetailValidateRules: ValidationChain[] = [
+    param("id").toInt(),
+];
+
+export const addOrderValidationRules: ValidationChain[] = [
+    body("items").isArray().notEmpty(),
+    body("delivery").notEmpty(),
+    body("totalAmount").notEmpty(),
+    body("totalPrice").notEmpty(),
+    body("firstBookTitle").notEmpty(),
+];
